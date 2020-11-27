@@ -26,3 +26,14 @@ curl https://kube-apiserver:6443/api/v1/pods --key admin.key --cert admin.crt --
 
 4. To view certificate details:
 openssl x509 -in /etc/Kubernetes/pki/apiserver.crt -text -noout
+
+5. To list context, Users and Clusters use:
+kubectl config view
+
+6. To pass a custom config file:
+kubectl config view --kubeconfig=my-custom-config
+
+7. To switch context:
+kubectl config use-context prod-user@production
+kubectl config -h 
+
