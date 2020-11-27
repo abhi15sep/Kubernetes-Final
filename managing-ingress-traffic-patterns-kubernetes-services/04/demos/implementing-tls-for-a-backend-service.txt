@@ -1,0 +1,158 @@
+This exercise assumes a working Kubernetes cluster (1.15+) running on a public
+cloud platform (e.g. AWS, GCP, Azure). After the cluster has been created,
+deploy an ingress controller, such as the community provided nginx ingress
+controller (https://kubernetes.github.io/ingress-nginx/deploy/). The ingress
+controller should be fronted by a service of type LoadBalancer. Ensure you
+have a domain name associated with the provisioned ingress controller (i.e. a
+DNS A record pointing to the IP address of the cloud load balancer). The
+cluster used in the demonstration in the course, was provisioned using kops;
+details here: https://kubernetes.io/docs/setup/custom-cloud/kops/.
+
+
+Exercise: IMPLEMENTING TLS FOR A BACKEND SERVICE
+++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+1.  For convenience, define an environment variable for the current version of
+    cert-manager.
+
+export REPO=https://github.com/jetstack/cert-manager/releases/latest/download
+
+2.  As a prelude to deploying cert-manager to the cluster, create a namespace
+    for it to reside in.
+
+kubectl create namespace cert-manager
+
+3.  Install cert-manager's custom resource definitions, cert-manager, and
+    associated configuration.
+
+kubectl apply --validate=false -f ${REPO}/cert-manager.yaml
+
+4.  Verify the installation of cert-manager by listing the pods in the
+    cert-manager namespace. It should list a pod for cert-manager, one for the
+    admission webhook server, and one for injecting a CA bunndle for use by the
+    webhook server.
+
+kubectl get po -n cert-manager
+
+5.  Deploy an example workload, and expose it using a Service object of type
+    ClusterIP.
+
+kubectl apply -f nginxhello/nginxhello-blue.yaml
+
+6.  Configure an ingress and host rule for your domain name, to route traffic
+    to the deployed workload using the backend service from the previous step.
+    Specify the 'tls' field to reference a secret that cert-manager will
+    subsequently create.
+
+vim ingress-scenarios/host-rule-with-tls-ingress.yaml
+
+7.  Apply the ingress definition to the cluster.
+
+kubectl apply -f ingress-scenarios/host-rule-with-tls-ingress.yaml
+
+8.  Acquaint yourself with the Issuer definition that represents the Let's
+    Encrypt ACME staging server (in the directory 'cert-manager'). Provide a
+    suitable email address in the definition, and match the 'class' associated
+    with the ingress controller (e.g. nginx, countour).
+
+vim cert-manager/acme-letsencrypt-staging.yaml
+
+9.  Create the Issuer described in the YAML definition.
+
+kubectl apply -f cert-manager/acme-letsencrypt-staging.yaml
+
+10. Verify the successful creation of the Issuer object by describing it. Check
+    an account has been successfully registered on the Let's Encrypt ACME
+    server, as reported in the status.
+
+kubectl describe issuer acme-letsencrypt-staging
+
+11. Acquaint yourself with the Certificate definition that represents the
+    certificate request. Configure the manifest for a domain name that you own
+    and control.
+
+vim cert-manager/certificate.yaml
+
+12. For you to see the ACME challenge in progress, the next two steps need to
+    be executed in quick succession, so read ahead to step 13 before executing
+    this step 12. Apply the definition of the certificate request.
+
+kubectl apply -f cert-manager/certificate.yaml
+
+13. Once the certificate object has been created, cert-manager will be subject
+    to an ACME challenge. An Ingress object will be created for a temporary
+    service that fulfils the challenge. Describe the challenge ingress using
+    TAB completion. Note the rule for your host, and the path for the ACME
+    challenge.
+
+kubectl describe ing cm<TAB>
+
+14. Check to make sure the certificate has been created as expected. Don't
+    forget to replace the name of the certificate with the name you used in
+    the manifest.
+
+kubectl get cert <name>
+
+15. Describe the certificate, and pay particular attention to the 'Status', and
+    the 'Events' recorded during its acquisition. Again, remember to specify
+    the correct name.
+
+kubectl describe cert <name>
+
+16. Check to make sure that the secret defined in the certificate has been
+    created with the secret name specified in the Certificate object.
+
+kubectl get secret <name>
+
+17. Again, using the correct secret name, describe the secret and notice the
+    annotations cert-manager has applied. Check that the secret contains a
+    private key (tls.key) and a certificate (tls.crt).
+
+kubectl describe secret <name>
+
+18. Using a web browser, navigate to your domain name and confirm that the
+    certificate that cert-manager has supplied is not valid. Inspect the
+    certificate and notice that it is a fake certificate supplied by the Let's
+    Encrypt staging ACME server.
+
+19. Before attempting to access the real Let's Encrypt ACME server, delete the
+    fake certificate using the correct name.
+
+kubectl delete cert <name>
+
+20. The secret also needs to be deleted before you attempt to acquire a genuine
+    certificate. It will be re-created by cert-manager.
+
+kubectl delete secret <name>
+
+21. Copy the manifest describing the staging ACME server for Let's Encrypt, and
+    name the file acme-letsencrypt-production.yaml.
+
+cp cert-manager/acme-letsencrypt-staging.yaml \
+      cert-manager/acme-letsencrypt-production.yaml
+
+22. Change the name of the Issuer and the privateKeySecretRef, by simply
+    substituting 'staging' for 'production'. Also remove 'staging' from the URL
+    of the ACME server.
+
+vim cert-manager/acme-letsencrypt-production.yaml
+
+23. Apply the manifest to create the Issuer that represents the real Let's
+    Encrypt ACME server.
+
+kubectl apply -f cert-manager/acme-letsencrypt-production.yaml
+
+24. Open the file containg the ingress manifest, and add an annotation to the
+    ingress - 'cert-manager.io/issuer: acme-letsencrypt-production.
+
+vim ingress-scenarios/host-rule-with-tls-ingress.yaml
+
+25. Apply the updated ingress definition to the cluster.
+
+kubectl apply -f ingress-scenarios/host-rule-with-tls-ingress.yaml
+
+26. It may take a few seconds for the certificate to be issued. Using a web
+    browser, navigate to your domain name and confirm that the certificate that
+    cert-manager has supplied is now a valid certificate.
+

@@ -1,0 +1,33 @@
+This exercise assumes a working Kubernetes cluster based on a Minikube virtual
+machine (https://github.com/kubernetes/minikube), although a cluster created in
+a different environment would also suffice. It also assumes an installation of
+the kubectl client (https://kubernetes.io/docs/tasks/tools/install-kubectl/).
+
+Exercise: DEPLOYING THE TRAEFIK INGRESS CONTROLLER
+++++++++++++++++++++++++++++++++++++++++++++++++++
+
+1. Install (https://minikube.sigs.k8s.io/docs/start/) Minikube, and disable the
+   ingress addon if it is enabled.
+
+minikube addons list | grep ingress
+minikube addons disable ingress
+
+2. Create the ServiceAccount, ClusterRole and ClusterRoleBinding that will
+   allow the Traefik ingress controller to access the API Server with the
+   relevant permissions.
+
+kubectl apply -f traefik/traefik-rbac.yaml
+
+3. Deploy the Traefik ingress controller to the cluster as a DaemonSet object.
+
+kubectl apply -f traefik/traefik-daemonset.yaml
+
+4. Check that the DaemonSet has been created, along with an associated pod.
+
+kubectl -n kube-system get -l app.kubernetes.io/name=traefik-ingress all
+
+5. Using the curl utility (or a web browser), try and access the IP address of
+   the Minikube VM. Check that a '404 page not found' response is returned by
+   the ingress controller.
+
+curl $(minikube ip)

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginxhello-canary
+  labels:
+    app.kubernetes.io/name: nginxhello-canary
+    app.kubernetes.io/part-of: nginxhello-canary
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app.kubernetes.io/name: nginxhello-canary
+    app.kubernetes.io/part-of: nginxhello-canary

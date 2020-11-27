@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginxhello-default
+  labels:
+    app.kubernetes.io/name: nginxhello-default
+    app.kubernetes.io/part-of: nginxhello-default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nginxhello-default
+      app.kubernetes.io/part-of: nginxhello-default
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nginxhello-default
+        app.kubernetes.io/part-of: nginxhello-default
+    spec:
+      containers:
+      - name: nginxhello-default
+        image: nbrown/nginxhello:mainline
+        ports:
+        - containerPort: 80
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginxhello-default
+  labels:
+    app.kubernetes.io/name: nginxhello-default
+    app.kubernetes.io/part-of: nginxhello-default
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app.kubernetes.io/name: nginxhello-default
+    app.kubernetes.io/part-of: nginxhello-default

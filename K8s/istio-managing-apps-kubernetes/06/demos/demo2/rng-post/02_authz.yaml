@@ -1,0 +1,17 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: numbers-api-authz
+  namespace: rng
+spec:
+  selector:
+    matchLabels:
+      app: numbers-api
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/rng/sa/numbers-web"]
+    to:
+    - operation:
+        methods: ["GET"]
+---

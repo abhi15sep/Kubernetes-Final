@@ -1,0 +1,15 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: host-rule-ingress
+spec:
+  backend:
+    serviceName: nginxhello-default
+    servicePort: 80
+  rules:
+  - host: dibble.sh
+    http:
+      paths:
+      - backend:
+          serviceName: nginxhello-blue
+          servicePort: 80

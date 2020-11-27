@@ -1,0 +1,116 @@
+This exercise assumes a working Kubernetes cluster running on a public cloud
+platform (e.g. AWS, GCP, Azure). After the cluster has been created, before
+proceeding, decide how you would like to install the community provided nginx
+ingress controller (https://kubernetes.github.io/ingress-nginx/deploy/). The
+course uses Helm to install the ingress controllers, which needs to be deployed
+beforehand. The cluster used in the demonstration in the course, was
+provisioned using kops (https://kubernetes.io/docs/setup/custom-cloud/kops/).
+
+
+Exercise: USING MULTIPLE INGRESS CONTROLLERS TO SEGREGATE TRAFFIC
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+1.  If installing with Helm, add the stable repo and update the local cache of
+    information on the available charts.
+
+helm repo add stable https://kubernetes-charts.storage.googleapis.com/ && \
+    helm repo update
+
+2.  Deploy the nginx ingress controller to the kube-system namespace, and name
+    the Helm release 'external'.
+
+helm install external stable/nginx-ingress \
+    --namespace kube-system \
+    --set rbac.create=true,controller.ingressClass=external
+
+3.  Make sure that the nginx ingress controller has been deployed successfully.
+    The ingress controller is fronted by a Service object of type LoadBalancer.
+    Using your cloud provider infrastructure, map a suitable domain name (e.g.
+    dibble.sh) to the provisioned load balancer (use the EXTERNAL_IP to
+    identify the load balancer).
+
+kubectl -n kube-system get all -l app=nginx-ingress
+
+4.  Deploy another nginx ingress controller to the kube-system namespace, and
+    name the Helm release 'internal'.
+
+helm install internal stable/nginx-ingress \
+    --namespace kube-system \
+    --set rbac.create=true,controller.ingressClass=internal
+
+5.  Check that there are four pods running in the kube-system namespace with
+    the label app=nginx-ingress; one pod for the controller set to handle
+    external traffic, one for internal traffic, and a pod for each default
+    backend service. Using your cloud provider infrastructure, map a suitable
+    domain name (e.g. internal.dibble.sh) to the load balancer provisioned for
+    the 'internal' ingress controller (again, use the EXTERNAL_IP to identify
+    the load balancer).
+
+kubectl -n kube-system get all -l app=nginx-ingress
+
+6.  Edit the nginxhello-blue YAML file (in the nginxhello directory) to
+    provide a hostname in the ingress definition (e.g. internal.dibble.sh). The
+    YAML file contains a Deployment (nginxhello-blue), Service and an Ingress,
+    and represents the internal traffic we wish to segregate. Create the
+    objects.
+
+vim nginxhello/nginxhello-blue.yaml
+kubectl apply -f nginxhello/nginxhello-blue.yaml
+
+7.  Edit the nginxhello-red YAML file (in the nginxhello directory) to
+    provide a hostname in the ingress definition (e.g. dibble.sh). The YAML
+    file contains a Deployment (nginxhello-red), Service and an Ingress, and 
+    represents the external traffic we wish to segregate. Create the objects.
+
+vim nginxhello/nginxhello-red.yaml
+kubectl apply -f nginxhello/nginxhello-red.yaml
+
+8.  Use a web browser and try and navigate to both of the names associated
+    with the load balancers that front the ingress controllers (e.g. dibble.sh
+    and internal.dibble.sh) and verify that the requests are routed to the
+    default backends. This is because there is an ingress class mismatch.
+
+9.  Check the logs of the ingress controller whose ingress class is set to
+    'external', and observe why it ignores the ingress definitions. Repeat the
+    exercise for the other ingress controller with ingress class 'internal'.
+
+kubectl -n kube-system logs <pod name>
+
+10. Edit the nginxhello-blue YAML file, and the following annotation under the
+    metadata field:
+
+    annotations:
+      kubernetes.io/ingress.class: "internal"
+
+    Apply the re-configured ingress definition.
+
+vim nginxhello/nginxhello-blue.yaml
+kubectl apply -f nginxhello/nginxhello-blue.yaml
+
+11. Check the logs of the ingress controller whose ingress class is set to
+    'internal', and observe that it reloads its configuration in response to
+    the new definition of the ingress object named internal-ingress.
+
+$ kubectl -n kube-system logs <pod name>
+
+12. Edit the nginxhello-red YAML file, and the following annotation under the
+    metadata field:
+
+    annotations:
+      kubernetes.io/ingress.class: "external"
+
+    Apply the re-configured ingress definition.
+
+vim nginxhello/nginxhello-red.yaml
+kubectl apply -f nginxhello/nginxhello-red.yaml
+
+13. Check the logs of the ingress controller whose ingress class is set to
+    'external', and observe that it reloads its configuration in response to
+    the new definition of the ingress object named external-ingress.
+
+kubectl -n kube-system logs <pod name>
+
+14. Use a web browser and try and navigate to both of the names associated
+    with the load balancers that front the ingress controllers, and verify that
+    this time the requests are routed to the appropriate backends.

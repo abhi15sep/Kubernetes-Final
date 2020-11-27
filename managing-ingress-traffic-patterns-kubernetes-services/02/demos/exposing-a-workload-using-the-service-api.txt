@@ -1,0 +1,83 @@
+This exercise assumes a working Kubernetes cluster running on a public cloud
+platform (e.g. AWS, GCP, Azure), comprising of at least two 'worker' nodes.
+The cluster used in the demonstration in the course, was provisioned using
+kops (https://kubernetes.io/docs/setup/custom-cloud/kops/).
+
+
+Exercise: EXPOSING A WORKLOAD USING THE SERVICE API
++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+1. Having created the Kubernetes cluster, run the following command, and make a
+   note of the external IP addresses of the nodes.
+
+kubectl get nodes \
+    -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}{"\n"}' \
+    | tr ' ' '\n'
+
+2. Familiarize yourself with the content of the 'nginxhello' Deployment
+   manifest. If you prefer to build your own version of the container image,
+   use the Dockerfile and assets provided, push the image to your repository,
+   and update the manifest to reference the image's location.
+
+cat ./nginxhello.yaml
+
+3. Deploy the workload to your cluster.
+
+kubectl apply -f ./nginxhello.yaml
+
+4. Check that the pods are up and running, and make a note of which nodes the
+   pods have been scheduled to.
+
+kubectl get po -o wide
+
+5. Expose the deployment via a Service object.
+
+kubectl expose deployment nginxhello --port 8080 --target-port 80
+
+6. Inspect the created Service object, and make a note of the clusterIP.
+
+kubectl get svc nginxhello -o yaml
+
+7. Check that the service can be consumed from within the cluster, by curling
+   the clusterIP and port combination. Don't forget to replace <clusterIP> with
+   the actual clusterIP retrieved from the previous step.
+
+kubectl run -it --rm curl --restart=Never \
+    --image=nbrown/curl -- <clusterIP>:8080
+
+8. Check that the service can be consumed using the nginxhello service name.
+
+kubectl run -it --rm curl --restart=Never \
+    --image=nbrown/curl -- nginxhello:8080
+
+9. Edit the nginxhello service, and change the type from ClusterIP to NodePort.
+
+kubectl edit svc nginxhello (change type to NodePort)
+
+10. Inspect the updated Service object, and make a note of the nodePort.
+
+kubectl get svc nginxhello -o yaml
+
+11. Using each node's external IP address, and the nodePort, use a web browser
+    to navigate to the exposed service. You may need to configure the ingress
+    rules to the VPC used by your cluster to give your client access.
+
+    URL: <external IP>:<nodePort>
+
+12. Edit the nginxhello service, and change the type from NodePort to
+    LoadBalancer.
+
+kubectl edit svc nginxhello (change type to LoadBalancer)
+
+13. Inspect the updated Service object, and make a note of the hostname or IP
+    address of the provisioned load balancer. You may  have to wait for this to
+    be provisioned.
+
+kubectl get svc nginxhello -o yaml
+
+14. Using the hostname or IP address of the load balancer, use a web browser to
+    navigate to the service. Again, you may need to configure access for the
+    service's port (8080) in the VPC used by the cluster's nodes.
+
+    URL: <hostname or IP>:8080

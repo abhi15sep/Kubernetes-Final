@@ -1,0 +1,93 @@
+This exercise assumes a working Kubernetes cluster, with the Traefik ingress
+controller deployed. The correct setup can be created by following the previous
+exercise in this module: deploying-the-traefik-ingress-controller.txt.
+
+Exercise: USING INGRESS RULES TO ROUTE TO BACKENDS
+++++++++++++++++++++++++++++++++++++++++++++++++++
+
+1.  Examine the nginxhello-default.yaml file to familiarise yourself with the
+    service that is to be deployed. You can either build the Docker image
+    yourself, push it to a registry, and amend the image name in the manifest,
+    OR use the image that's already referenced in the manifest.
+
+cat nginxhello/nginxhello-default.yaml
+
+2.  Deploy the three variants of the nginxhello service.
+
+for i in nginxhello/nginxhello-*.yaml; do kubectl apply -f $i; done
+
+3.  Examine the single-default-backend-ingress.yaml file in the directory called
+    ingress_scenarios, to familiarise yourself with the ingress for the default
+    backend.
+
+cat ingress-scenarios/single-default-backend-ingress.yaml
+
+4.  Create the ingress object for the default backend.
+
+kubectl apply -f ingress-scenarios/single-default-backend-ingress.yaml
+
+5.  Inspect the created object, and confirm it's as you expect it to be.
+
+kubectl describe ing single-default-backend-ingress
+
+6.  Create entries that associate the following hostnames to your Minikube IP
+    address in your local hosts file (assumes /etc/hosts is consulted before
+    DNS): dibble.sh, red.dibble.sh, blue.dibble.sh. Feel free to use
+    alternative names.
+
+echo "$(minikube ip)  dibble.sh red.dibble.sh blue.dibble.sh" | \
+sudo tee -a /etc/hosts
+
+7.  Use a web browser to navigate to dibble.sh, and confirm that the ingress
+    controller directs you to the nginxhello-default backend.
+
+8.  Remove the ingress.
+
+kubectl delete ing single-default-backend-ingress
+
+9.  Examine the host-rule-ingress.yaml file to familiarise yourself with the
+    ingress with a host rule defined for dibble.sh.
+
+cat ingress-scenarios/host-rule-ingress.yaml
+
+10. Create the ingress object for the host-based rule.
+
+kubectl apply -f ingress-scenarios/host-rule-ingress.yaml
+
+11. Inspect the created object, and confirm it's as you expect it to be.
+
+kubectl describe ing host-rule-ingress
+
+12. Use a web browser to navigate to dibble.sh, and confirm that the ingress
+    controller directs you to the nginxhello-blue backend.
+
+13. Amend the host-rule-ingress.yaml file so that there are two rules for the
+    hosts red.dibble.sh and blue.dibble.sh. Apply the configuration changes.
+
+kubectl apply -f ingress-scenarios/host-rule-ingress.yaml
+
+14. Use a web browser to navigate to dibble.sh, red.dibble.sh, blue.dibble.sh,
+    respectively. Confirm that the ingress routes each of the requests to the
+    appropriate backend service.
+
+15. Remove the ingress.
+
+kubectl delete ing host-rule-ingress
+
+16. Examine the path-rule-ingress.yaml file to familiarise yourself with the
+    ingress with path rules defined for dibble.sh/red and dibble.sh/blue. Note
+    the ingress controller annotation.
+
+cat ingress-scenarios/path-rule-ingress.yaml
+
+17. Create the ingress object for the path-based rule.
+
+kubectl apply -f ingress-scenarios/path-rule-ingress.yaml
+
+18. Inspect the created object, and confirm it's as you expect it to be.
+
+kubectl describe ing path-rule-ingress
+
+19. Use a web browser to navigate to dibble.sh/red and dibble.sh/blue,
+    respectively, and confirm that the ingress controller directs you to the
+    appropriate backend. Try dibble.sh, too.

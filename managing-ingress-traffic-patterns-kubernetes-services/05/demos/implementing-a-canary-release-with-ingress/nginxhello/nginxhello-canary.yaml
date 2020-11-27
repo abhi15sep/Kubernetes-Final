@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginxhello-canary
+  labels:
+    app.kubernetes.io/name: nginxhello
+    app.kubernetes.io/part-of: nginxhello
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nginxhello
+      app.kubernetes.io/part-of: nginxhello
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nginxhello
+        app.kubernetes.io/part-of: nginxhello
+    spec:
+      containers:
+      - name: nginxhello
+        image: nbrown/nginxhello:1.15.8
+        ports:
+        - containerPort: 80
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName

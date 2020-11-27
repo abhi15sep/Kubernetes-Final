@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: path-rule-ingress
+  annotations:
+    traefik.frontend.rule.type: PathPrefixStrip
+spec:
+  backend:
+    serviceName: nginxhello-default
+    servicePort: 80
+  rules:
+  - http:
+      paths:
+      - backend:
+          serviceName: nginxhello-blue
+          servicePort: 80
+        path: /blue
+  - http:
+      paths:
+      - backend:
+          serviceName: nginxhello-red
+          servicePort: 80
+        path: /red

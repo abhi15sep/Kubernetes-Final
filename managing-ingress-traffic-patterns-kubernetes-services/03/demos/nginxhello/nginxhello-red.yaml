@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginxhello-red
+  labels:
+    app.kubernetes.io/name: nginxhello-red
+    app.kubernetes.io/part-of: nginxhello-red
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nginxhello-red
+      app.kubernetes.io/part-of: nginxhello-red
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nginxhello-red
+        app.kubernetes.io/part-of: nginxhello-red
+    spec:
+      containers:
+      - name: nginxhello-red
+        image: nbrown/nginxhello:mainline
+        ports:
+        - containerPort: 80
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: COLOR
+          value: red
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginxhello-red
+  labels:
+    app.kubernetes.io/name: nginxhello-red
+    app.kubernetes.io/part-of: nginxhello-red
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app.kubernetes.io/name: nginxhello-red
+    app.kubernetes.io/part-of: nginxhello-red

@@ -1,0 +1,7 @@
+        Kubernetes Ingress: https://k8s.io/docs/concepts/services-networking/ingress/
+  Nginx Ingress Controller: https://git.io/fjLR4
+Traefik Ingress Controller: https://docs.traefik.io/v1.7/user-guide/kubernetes/
+Contour Ingress Controller: https://git.io/fh4Ua
+              cert-manager: https://cert-manager.io/docs/
+     Ambassador Edge Stack: https://www.getambassador.io/docs
+        Istio Service Mesh: https://istio.io/

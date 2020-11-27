@@ -1,0 +1,12 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: nginxhello
+spec:
+  rules:
+  - host: <insert name associated with load balancer>
+    http:
+      paths:
+      - backend:
+          serviceName: nginxhello
+          servicePort: 80

@@ -1,0 +1,149 @@
+This exercise assumes a working Kubernetes cluster running on a public cloud
+platform (e.g. AWS, GCP, Azure). After the cluster has been created, before
+proceeding, install the Traefik ingress controller with its dashboard enabled.
+NOTE: Be sure to use version 1.x of Traefik and NOT 2.x, which does not support
+the use of annotations.
+
+The ingress controller can be installed with Helm using the official chart
+(https://hub.helm.sh/charts/stable/traefik), or using a set of manifests
+(https://github.com/containous/traefik/tree/v1.7/examples/k8s).
+The cluster used in the demonstration in the course, was provisioned using kops
+(https://kubernetes.io/docs/setup/custom-cloud/kops/).
+
+
+Exercise: IMPLEMENTING A CANARY RELEASE WITH INGRESS
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+1.  If installing with Helm, add the stable repo and update the local cache of
+    information on the available charts.
+
+helm repo add stable https://kubernetes-charts.storage.googleapis.com/ && \
+    helm repo update
+
+2.  Deploy the traefik ingress controller to the kube-system namespace. Set a
+    suitable domain for the dashboard (e.g. traefik.dibble.sh).
+
+helm install traefik stable/traefik \
+    --namespace kube-system \
+    --set rbac.enabled=true \
+    --set dashboard.enabled=true \
+    --set dashboard.serviceType=LoadBalancer \
+    --set dashboard.domain=<domain>
+
+3.  If you've enabled the Traefik dashboard, a DNS record needs to be set for
+    the domain to be directed to the cloud provisioned load balancer. Once set,
+    visit the URL you specified for the dashboard (e.g. traefik.dibble.sh).
+
+4.  Acquaint yourself with the nature of the nginxhello deployment definition.
+
+cat nginxhello/nginxhello.yaml
+
+5.  Deploy the nginxhello application using the manifest in the file
+    nginxhello.yaml (in the directory nginxhello).
+
+kubectl apply -f nginxhello/nginxhello.yaml
+
+6.  Acquaint yourself with the nature of the nginxhello service definition.
+
+cat nginxhello/nginxhello-svc.yaml
+
+7.  Deploy the nginxhello service that fronts the nginxhello workload.
+
+kubectl apply -f nginxhello/nginxhello-svc.yaml
+
+8.  Acquaint yourself with the nature of the nginxhello ingress definition,
+    and insert the name of the host that resolves to the load balancer that
+    sits in front of the ingress controller (e.g. dibble.sh). This is NOT the
+    load balancer that sits in front of the Traefik dashboard (if deployed).
+
+vim nginxhello/nginxhello-ingress.yaml
+
+9.  Deploy the nginxhello ingress that will route external traffic to the
+    nginxhello service.
+
+kubectl apply -f nginxhello/nginxhello-ingress.yaml
+
+10. If you've enabled the Traefik dashboard, check that Traefik has updated
+    its configuration with the fronted (rule) and backend (pod replicas). If
+    successful, the ingress controller will have registered four backend
+    servers (pods), and will be ready to route traffic between them.
+
+11. Test that the deployed version of the nginxhello application is version
+    1.14.2.
+
+curl -s <hostname> | grep Version | sed 's/<[^>]*>//g'
+
+12. Acquaint yourself with the nature of the canary version of the nginxhello
+    deployment definition. Notice it has a single replica pod.
+
+cat nginxhello/nginxhello-canary.yaml
+
+13. Deploy the nginxhello canary release.
+
+kubectl apply -f nginxhello/nginxhello-canary.yaml
+
+14. Return to the Traefik dashboard, and confirm that the canary replica has
+    been added to the 'servers' in the Traefik backend.
+
+15. Test that the canary release of nginxhello serves 20% of client requests by
+    issuing x10 requests (don't forget to insert the correct hostname), and
+    ensuring two of those return version 1.15.8.
+
+for i in {1..10}; do \
+    curl -s <hostname> | grep Version | sed 's/<[^>]*>//g'; done
+
+16. Remove the canary deployment.
+
+kubectl delete deploy nginxhello-canary
+
+17. Redefine the canary deployment by editing the file nginxhello-canary.yaml,
+    and change the labels in the selector and template of the definition to be
+    'nginxhello-canary' instead of 'nginxhello'.
+
+vim nginxhello/nginxhello-canary.yaml
+
+18. Re-deploy the nginxhello canary release with the changes.
+
+kubectl apply -f nginxhello/nginxhello-canary.yaml
+
+19. Acquaint yourself with the nature of the service that will front the 
+    canary release. It's selector matches the labels applied to the canary
+    replicas.
+
+cat nginxhello/nginxhello-canary-svc.yaml
+
+20. Apply the nginxhello canary service definition.
+
+kubectl apply -f nginxhello/nginxhello-canary-svc.yaml
+
+20. Edit the ingress definition in nginxhello-ingress.yaml to add the
+    annotation for the service weights under the metadata field,
+
+    annotations:
+      traefik.ingress.kubernetes.io/service-weights: |
+        nginxhello: 95%
+        nginxhello-canary: 5%
+   
+    along with the additional path in the ingress rule for the canary backend.
+
+    - backend
+        serviceName: nginxhello-canary
+        servicePort: 80
+
+21. Apply the revised ingress definition.
+
+kubectl apply -f nginxhello/nginxhello-ingress.yaml
+
+22. Return to the Traefik dashboard, and notice that the weights have been
+    applied by Traefik such that the canary has a weight equivalent to 5%,
+    whilst the total weight for the replicas associated with the original
+    deployment equates to 95%.
+
+23. Test that only 5% of client traffic is routed to the canary release by the
+    ingress controller (50 requests) - don't forget to insert your hostname.
+    The command may take some time to complete, so be patient!
+
+{ for i in {1..1000}; do curl -s <hostname>; done } | \
+    grep "1.15.8" | sed 's/<[^>]*>//g' | \
+    wc -l

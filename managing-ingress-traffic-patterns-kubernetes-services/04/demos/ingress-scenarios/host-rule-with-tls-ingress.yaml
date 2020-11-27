@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: host-rule-ingress
+spec:
+  rules:
+    # Provide the DNS name associated with your LoadBalancer service fronting
+    # the ingress controller
+  - host: your-hostname
+    http:
+      paths:
+      - backend:
+          serviceName: nginxhello-blue
+          servicePort: 80
+  tls:
+  - hosts:
+    # Provide the DNS name associated with your LoadBalancer service fronting
+    # the ingress controller
+    - your-hostname
+    # Provide a recognizable name for the secret that holds the TLS artifacts
+    secretName: your-hostname-tls

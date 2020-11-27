@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1alpha3
+kind: Certificate
+metadata:
+  # Provide a meaningful name for the certificate resource
+  name: your-hostname
+  namespace: default
+spec:
+  dnsNames:
+  # Provide a DNS name you own (which resolves to a LoadBalancer service
+  # fronting the ingress controller
+  - your-hostname
+  issuerRef:
+    name: acme-letsencrypt-staging
+  # Use the same secret name supplied in the ingress definition
+  secretName: your-hostname-tls

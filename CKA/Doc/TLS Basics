@@ -1,0 +1,28 @@
+Generate public and private key
+1. openssl genrsa -out my-bank.key 1024
+2. openssl rsa -in my-bank.key -pubout > mybank.pem
+
+Genarate CSR:
+openssl req -new -key my-bank.key -out my-bank.csr -subj "/C=US/ST=CA/O=MyOrg, Inc./CN=mydomain.com" 
+
+
+
+Kubernetes Certificate:
+========================
+1. Generate CA certificate:
+openssl genrsa -out ca.key 2048   (private key)
+openssl req -new -key ca.key -subj "/CN=KUBERNETES-CA/O=system:masters" -out ca.csr   (certificate signing request)
+openssl x509 -req -in ca.csr -signkey ca.key -out ca.crt (sign certificate)
+
+
+2. Admin user certificate:
+openssl genrsa -out admin.key 2048   (private key)
+openssl req -new -key admin.key -subj "/CN=kube-admin" -out admin.csr   (certificate signing request)
+openssl x509 -req -in admin.csr -CA ca.crt -CAkey ca.key -out admin.crt    (sign certificate)
+
+3. Use admin certificate:
+curl https://kube-apiserver:6443/api/v1/pods --key admin.key --cert admin.crt --cacert ca.crt
+
+
+4. To view certificate details:
+openssl x509 -in /etc/Kubernetes/pki/apiserver.crt -text -noout

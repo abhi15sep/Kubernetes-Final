@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.k8s.yml -o ./.k8s
+    kompose.version: 1.21.0 (992df58d8)
+  labels:
+    io.kompose.service: customers-api
+  name: customers-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: customers-api
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.k8s.yml -o ./.k8s
+        kompose.version: 1.21.0 (992df58d8)
+      labels:
+        io.kompose.service: customers-api
+    spec:
+      containers:
+      - env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Development
+        image: customers-api
+        imagePullPolicy: IfNotPresent
+        name: customers-api
+        ports:
+        - containerPort: 80
+        resources: {}
+      restartPolicy: Always
+status: {}

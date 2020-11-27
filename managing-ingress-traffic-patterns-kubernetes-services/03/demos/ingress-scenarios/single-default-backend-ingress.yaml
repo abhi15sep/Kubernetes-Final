@@ -1,0 +1,8 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: single-default-backend-ingress
+spec:
+  backend:
+    serviceName: nginxhello-default
+    servicePort: 80

@@ -1,0 +1,28 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: numbers-api
+  namespace: rng
+spec:
+  hosts:
+  - numbers-api.rng.svc.cluster.local
+  http:
+  - route:
+    - destination:
+        host: numbers-api.rng.svc.cluster.local
+        subset: v1
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: numbers-web
+  namespace: rng
+spec:
+  hosts:
+  - numbers-web.rng.svc.cluster.local
+  http:
+  - route:
+    - destination:
+        host: numbers-web.rng.svc.cluster.local
+        subset: v1
+---

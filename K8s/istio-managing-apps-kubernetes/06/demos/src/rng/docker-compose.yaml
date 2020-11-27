@@ -1,0 +1,25 @@
+version: "3.7"
+
+services:
+  numbers-api:
+    image: sixeyed/numbers-api:psod-istio
+    ports:
+      - 8081:80
+    build:
+      context: numbers-api 
+    networks:
+      - app-net    
+
+  numbers-web:
+    image: sixeyed/numbers-web:psod-istio
+    ports:
+      - 8080:80
+    environment:
+      - RngApi__Url=http://numbers-api/rng
+    build:
+      context: numbers-web
+    networks:
+      - app-net
+
+networks:
+  app-net:
