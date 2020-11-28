@@ -1,0 +1,13 @@
+Kubernetes DNS-Based Service Discovery:
+https://github.com/kubernetes/dns/blob/master/docs/specification.md
+https://coredns.io/plugins/kubernetes/
+
+NOTES:
+1. While testing the Network Namespaces, if you come across issues where you can't ping one namespace from the other, make sure you set the NETMASK while setting IP Address. ie: 192.168.1.10/24
+ip -n red addr add 192.168.1.10/24 dev veth-red
+Another thing to check is FirewallD/IP Table rules. Either add rules to IP Tables to allow traffic from one namespace to another. Or disable IP Tables all together (Only in a learning environment).
+
+2. Network Addons: This includes installing a network plugin in the cluster. While we have used weave-net as an example, please bear in mind that you can use any of the plugins which are described here:
+https://kubernetes.io/docs/concepts/cluster-administration/addons/
+https://kubernetes.io/docs/concepts/cluster-administration/networking/#how-to-implement-the-kubernetes-networking-model
+https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/#steps-for-the-first-control-plane-node (step 2)
