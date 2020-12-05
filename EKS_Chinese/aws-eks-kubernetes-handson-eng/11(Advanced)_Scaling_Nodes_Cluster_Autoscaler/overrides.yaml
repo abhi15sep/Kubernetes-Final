@@ -1,0 +1,11 @@
+awsRegion: us-west-2
+
+rbac:
+  create: true # ref: https://github.com/kubernetes/autoscaler/issues/1507
+  serviceAccount:
+    create: false # because Service account and IAM role already created by `eksctl create iamserviceaccount` s
+    name: cluster-autoscaler-aws-cluster-autoscaler
+
+autoDiscovery:
+  clusterName: eks-from-eksctl
+  enabled: true

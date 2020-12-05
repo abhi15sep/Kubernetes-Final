@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    run: irsa-iam-test
+  name: irsa-iam-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: irsa-iam-test
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: irsa-iam-test
+    spec:
+      containers:
+      - command:
+        - /bin/sh
+        - -c
+        - sleep 500
+        image: amazon/aws-cli
+        name: irsa-iam-test
+        resources: {}
+      serviceAccountName: irsa-service-account
+status: {}

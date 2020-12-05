@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-irsa
+  namespace: kube-system
+spec:
+  serviceAccountName: cluster-autoscaler-aws-cluster-autoscaler
+  containers:
+  - image: amazon/aws-cli
+    name: test-irsa
+    command:
+    - sleep
+    - "1500"

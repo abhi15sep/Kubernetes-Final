@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-auth
+  namespace: kube-system
+data:
+  mapRoles: |
+    - groups:
+      - system:bootstrappers
+      - system:nodes
+      rolearn: arn:aws:iam::xxxxxxxx:role/eksctl-eks-from-eksctl-nodegroup-NodeInstanceRole-R3EFEQC9U6U
+      username: system:node:{{EC2PrivateDNSName}}
+    - groups:  # <----- new IAM role entry
+      - system:viewer  # <----- K8s User Group
+      rolearn: arn:aws:iam::xxxxxxxx:role/eks-viewer-role  # AWS IAM role
+      username: eks-viewer
+    - groups:  # <----- new IAM role entry
+      - system:editor   # <----- K8s User Group
+      rolearn: arn:aws:iam::xxxxxxxx:role/eks-editor-role  # AWS IAM role
+      username: eks-editor
+  # it's best practice to use IAM role rather than IAM user's access key
+  # mapUsers: |
+  #   - userarn: arn:aws:iam::xxxxxxxxx:user/eks-viewer
+  #     username: eks-viewer
+  #     groups:
+  #     - system:viewer
+  #   - userarn: arn:aws:iam::xxxxxxxx:user/eks-editor
+  #     username: eks-editor
+  #     groups:
+  #     - system:editor

@@ -1,0 +1,78 @@
+eksctl create cluster \
+    --name eks-from-eksctl \
+    --version 1.16 \
+    --region us-west-2 \
+    --nodegroup-name workers \
+    --node-type t3.medium \
+    --nodes 1 \
+    --nodes-min 1 \
+    --nodes-max 2 \
+    --ssh-access \
+    --ssh-public-key ~/.ssh/eks-demo.pem.pub \
+    --managed
+
+# ch4 K8s dashboard
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.6/components.yaml
+kubectl get deployment metrics-server -n kube-system
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/recommended.yaml
+kubectl apply -f 4_Deploy_K8s_Dashboard_with_Helm/eks-admin-service-account.yaml
+kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep eks-admin | awk '{print $1}')
+
+# ch5 deploy apps
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/examples/master/guestbook-go/redis-master-controller.json
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/examples/master/guestbook-go/redis-master-service.json
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/examples/master/guestbook-go/redis-slave-controller.json
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/examples/master/guestbook-go/redis-slave-service.json
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/examples/master/guestbook-go/guestbook-controller.json
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/examples/master/guestbook-go/guestbook-service.json
+
+# ch6 ingress controller and HTTPS
+kubectl create namespace nginx-ingress-controller
+helm install nginx-ingress-controller stable/nginx-ingress -n nginx-ingress-controller
+kubectl apply -f 6_Expose_Pods_with_Ingress_Controller/ingress.yaml
+kubectl delete svc guestbook
+kubectl apply -f 6_Expose_Pods_with_Ingress_Controller/service_guestbook_nodeport.yaml
+aws acm import-certificate   --certificate fileb://6_Expose_Pods_with_Ingress_Controller/elb.amazonaws.com.cert.pem   --private-key fileb://6_Expose_Pods_with_Ingress_Controller/elb.amazonaws.com.key.pem   --region us-west-2
+
+# MANUAL: replace ACM ARN in overrides.yaml here
+helm upgrade nginx-ingress-controller             stable/nginx-ingress             -n nginx-ingress-controller             -f 6_Expose_Pods_with_Ingress_Controller/nginx_helm_chart_overrides_ssl_termination_at_elb_redirect_http.yaml
+kubectl  get svc nginx-ingress-controller-controller -n nginx-ingress-controller | awk '{ print $4 }' | tail -1
+
+# ch10 IRSA
+eksctl utils associate-iam-oidc-provider \
+            --region=us-west-2 \
+            --cluster=eks-from-eksctl \
+            --approve
+
+eksctl create iamserviceaccount \
+                --name irsa-service-account \
+                --namespace default \
+                --cluster eks-from-eksctl \
+                --attach-policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess \
+                --approve \
+                --region us-west-2
+
+kubectl apply -f 10\(Advanced\)_Security_Pod_Level_Authorization_with_IRSA/deployment_irsa_test.yaml
+
+eksctl create iamserviceaccount \
+                --name cluster-autoscaler-aws-cluster-autoscaler \
+                --namespace kube-system \
+                --cluster eks-from-eksctl \
+                --attach-policy-arn arn:aws:iam::266981300450:policy/EKSFromEksctlClusterAutoscalerRole \
+                --approve \
+                --region us-west-2
+
+
+# ch 12 CA
+helm install cluster-autoscaler \
+    stable/cluster-autoscaler \
+    --namespace kube-system \
+    --values 11\(Advanced\)_Scaling_Nodes_Cluster_Autoscaler/overrides.yaml
+
+aws autoscaling set-desired-capacity \
+    --auto-scaling-group-name eks-38b98855-bb08-9e54-e68a-d38a45348bcb \
+    --desired-capacity 3 \
+    --region us-west-2
+
+# CLEANUP
+eksctl delete cluster --name eks-from-eksctl --region us-west-2

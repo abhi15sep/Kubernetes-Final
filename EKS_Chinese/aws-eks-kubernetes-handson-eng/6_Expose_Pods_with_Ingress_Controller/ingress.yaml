@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    # nginx.ingress.kubernetes.io/backend-protocol: "HTTPS" # this is the case where a container accept HTTPS
+  name: guestbook
+  namespace: default
+spec:
+  #  this is in case SSL termination happens at nginx ingress controller
+  # tls:
+  # - hosts:
+  #   - a92226b56ed6548beaae3bcc7e3b9a5c-997944382.us-west-2.elb.amazonaws.com
+  #   secretName: tls-secret 
+  rules:
+    - http:
+        paths:
+          - backend:
+              serviceName: guestbook
+              servicePort: 3000 
+            path: /

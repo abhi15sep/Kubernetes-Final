@@ -1,0 +1,7 @@
+controller:
+  service:
+    annotations:
+      # https for AWS ELB. Ref: https://kubernetes.io/docs/concepts/services-networking/service/#ssl-support-on-aws
+      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:us-west-2:266981300450:certificate/a2649a4d-f855-4a42-b7e6-e43b276a63b5"
+      service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http" # backend pod doesn't speak HTTPS
+      service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443,8443" # unless ports specified, even port 80 will be SSL provided

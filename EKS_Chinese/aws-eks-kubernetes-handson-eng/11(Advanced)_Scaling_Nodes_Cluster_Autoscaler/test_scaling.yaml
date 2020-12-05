@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-scaling
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-scaling
+  template:
+    metadata:
+      labels:
+        service: test-scaling
+        app: test-scaling
+    spec:
+      containers:
+      - image: nginx
+        name: test-scaling
+        resources:
+          limits:
+            cpu: 2500m
+            memory: 2500Mi
+          requests:
+            cpu: 1400m # make this pod consume a lot of CPU resource on node
+            memory: 1400Mi
