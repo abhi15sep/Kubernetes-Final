@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment2
+  labels:
+    app: deployment2
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-api-2
+  template:
+    metadata:
+      labels:
+        app: web-api-2
+    spec:
+      containers:
+      - name: web-api
+        image: dhimanhalder/web-api:1.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SERVICE_NAME
+          value: "Web api 2"

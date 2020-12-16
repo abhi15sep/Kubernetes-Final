@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment1
+  labels:
+    app: deployment1
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-api-1
+  template:
+    metadata:
+      labels:
+        app: web-api-1
+    spec:
+      containers:
+      - name: web-api
+        image: dhimanhalder/web-api:1.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SERVICE_NAME
+          value: "Web api 1"

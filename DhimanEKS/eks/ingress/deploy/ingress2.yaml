@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress
+  namespace: default  
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: service.dhiman.xyz
+    http:
+      paths:
+      - path: /s1
+        backend:
+          serviceName: service1
+          servicePort: 80
+      - path: /s2
+        backend:
+          serviceName: service2
+          servicePort: 80    
