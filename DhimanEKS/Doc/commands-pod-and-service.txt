@@ -1,0 +1,33 @@
+sudo yum install git
+
+cat nginx-pod.yaml 
+
+kubectl apply -f nginx-pod.yaml
+
+kubectl get pods
+
+kubectl describe pod nginx
+
+kubectl get pods —show-labels
+
+kubectl get pods -l app=nginx
+
+kubectl get pods -o wide
+
+kubectl label pods -l app=nginx tier=fe
+
+kubectl edit pod nginx 
+
+kubectl logs nginx
+
+kubectl exec -it nginx -- sh
+
+cat /etc/nginx/nginx.conf
+
+kubectl apply -f nginx-service.yaml
+
+kubectl get service
+
+kubectl delete pod nginx
+
+kubectl delete service nginx

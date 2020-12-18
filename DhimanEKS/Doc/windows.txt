@@ -1,0 +1,2 @@
+How to connect to an linux EC2 instance from an Windows instance
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html
