@@ -1,0 +1,54 @@
+Commands
+--------
+
+kubectl get storageclass
+
+cd eks
+
+cd wordpress
+
+cat mysql-pvc.yaml
+
+cat mysql-pvc.yaml
+
+kubectl apply -f mysql-pvc.yaml
+
+cat wordpress-pvc.yaml
+
+kubectl apply -f wordpress-pvc.yaml
+
+kubectl get pvc
+
+cat mysql-deployment.yaml
+
+kubectl create secret generic mysql --from-literal=password=pass
+
+kubectl get secret
+
+kubectl apply -f mysql-deployment.yaml
+
+kubectl get deployment
+
+cat mysql-service.yaml
+
+kubectl apply -f mysql-service.yaml
+
+kubectl get svc
+
+cat wordpress-deployment.yaml
+
+kubectl create -f wordpress-deployment.yaml
+
+cat wordpress-service.yaml
+
+kubectl create -f wordpress-service.yaml
+
+kubectl get svc
+
+
+Useful links
+-------------
+
+https://kubernetes.io/docs/concepts/storage/persistent-volumes/
+
+

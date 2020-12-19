@@ -1,0 +1,43 @@
+Commands
+--------
+
+cd eks
+
+cd efs
+
+vim efs-provisioner.yaml
+
+kubectl apply -f efs-provisioner.yaml
+
+kubectl get deployments
+
+kubectl get pods
+
+cat efs-rbac.yaml
+
+kubectl apply -f efs-rbac.yaml
+
+cat efs-storageclass.yaml
+
+kubectl get storageclass
+
+kubectl apply -f efs-storageclass.yaml
+
+kubectl get storageclass
+
+cat efs-mysql-pvc.yaml
+
+kubectl apply -f efs-mysql-pvc.yaml
+
+kubectl get pods
+
+kubectl get pvc
+
+cat efs-mysql-deployment.yaml
+
+kubectl apply -f efs-mysql-deployment.yaml
+
+kubectl get pods
+
+kubectl delete pod <pod_name>
+

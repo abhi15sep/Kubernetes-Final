@@ -1,0 +1,24 @@
+Commands
+--------
+
+kubectl get pods -o wide
+
+kubectl delete pod -l app=mysql
+
+kubectl get pods -o wide
+
+kubectl get nodes
+
+kubectl drain <node> --ignore-daemonsets
+
+kubectl get pods
+
+kubectl describe pod <pod_name>
+
+kubectl get pods -o wide
+
+kubectl uncordon <node>
+
+kubectl get nodes
+
+kubectl get pods -o wide

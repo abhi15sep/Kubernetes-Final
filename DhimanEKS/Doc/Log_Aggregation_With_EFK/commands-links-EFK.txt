@@ -1,0 +1,67 @@
+
+IAM Permissions
+----------------
+
+a. fluentd_role > cwl_rw_policy
+
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "logs",
+      "Action": ["logs:CreateLogStream","logs:PutLogEvents","logs:DescribeLogGroups","logs:DescribeLogStreams"],
+      "Effect": "Allow",
+      "Resource": ["arn:aws:logs:*:*:*"]
+    }
+  ]
+}
+
+b. fluentd_role Trust Relationship
+
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "<ARN_NODE_ROLE>"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+
+
+
+Commands
+--------
+
+cd eks
+
+vim fluentd-cloudwatch.yaml
+
+kubectl apply -f fluentd-cloudwatch.yaml
+
+kubectl get daemonsets --all-namespaces
+
+kubectl run random-logger --image=chentex/random-logger:latest
+
+kubectl get pods
+
+kubectl logs <pod_name>
+
+
+
+Useful Links
+------------
+
+https://github.com/fluent/fluentd-kubernetes-daemonset
