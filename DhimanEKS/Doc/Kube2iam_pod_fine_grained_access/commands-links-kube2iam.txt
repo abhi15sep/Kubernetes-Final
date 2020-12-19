@@ -1,0 +1,93 @@
+IAM Permissions
+---------------
+
+Inline Policy for the EC2 worker node's IAM role to add permission to Assume other IAM role
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+      "Effect": "Allow",
+      "Resource": "arn:aws:iam::ACCOUNT_ID:role/k8s*",
+      "Action": "sts:AssumeRole"
+      }
+    ]
+}
+
+
+Append this fragment to the k8s-s3-list-bucket-role Trust relationship's statement array
+
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "<YourNodeInstanceRoleARN>"
+      },
+      "Action": "sts:AssumeRole"
+    }
+ 
+Commands
+--------
+
+git clone https://github.com/dhiman-halder/eks
+
+cd eks
+
+vim kube2iam.yaml
+
+vim aws-cli.yaml
+
+kubectl apply -f kube2iam.yaml
+
+kubectl get daemonset --all-namespaces
+
+kubectl apply -f aws-cli.yaml
+
+kubectl exec -it aws-cli aws s3 ls
+
+kubectl exec -it aws-cli  -- sh
+
+curl http://169.254.169.254/latest/meta-data/iam/security-credentials/
+
+kubectl delete pod aws-cli --force --grace-period=0
+
+kubectl get pods
+
+vim aws-cli.yaml
+
+kubectl apply -f aws-cli.yaml
+
+kubectl exec -it aws-cli aws s3 ls
+
+vim aws-cli.yaml
+
+kubectl exec -it aws-cli aws s3 ls
+
+kubectl exec -it aws-cli  -- sh
+
+curl http://169.254.169.254/latest/meta-data/iam/security-credentials/
+
+vim aws-cli.yaml
+
+kubectl delete pod aws-cli --force --grace-period=0
+
+kubectl apply -f aws-cli.yaml
+
+kubectl exec -it aws-cli aws s3 ls
+
+kubectl exec -it aws-cli  -- sh
+
+curl http://169.254.169.254/latest/meta-data/iam/security-credentials/
+
+
+
+Useful links
+------------
+
+https://github.com/jtblin/kube2iam

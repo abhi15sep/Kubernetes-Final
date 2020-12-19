@@ -1,0 +1,9 @@
+docker build -t web-api:1.0 .
+
+docker login --username=<YourDockerHubUserName>
+
+docker tag web-api:1.0 <YourDockerRepoName>/web-api:1.0
+
+docker images
+
+docker push <YourDockerRepoName>/web-api:1.0

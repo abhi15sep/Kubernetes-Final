@@ -1,0 +1,57 @@
+Commands
+--------
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/mandatory.yaml
+
+curl -o service-l7.yaml https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/provider/aws/service-l7.yaml
+
+vim service-l7.yaml
+
+kubectl apply -f service-l7.yaml
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/provider/aws/patch-configmap-l7.yaml
+
+kubectl get svc --all-namespaces
+
+vim deployment1.yaml
+
+vim deployment2.yaml
+
+vim service1.yaml
+
+vim service2.yaml
+
+vim ingress1.yaml
+
+kubectl apply -f deployment1.yaml
+
+kubectl apply -f deployment2.yaml
+
+kubectl apply -f service1.yaml
+
+kubectl apply -f service2.yaml
+
+kubectl get pods
+
+kubectl get svc
+
+kubectl apply -f ingress1.yaml
+
+kubectl get pods
+
+kubectl get ingress
+
+kubectl delete ingress ingress
+
+vim ingress2.yaml
+
+kubectl apply -f ingress2.yaml
+
+
+
+Useful links
+-------------
+
+https://kubernetes.github.io/ingress-nginx/deploy/
+
+https://github.com/kubernetes/ingress-nginx/
