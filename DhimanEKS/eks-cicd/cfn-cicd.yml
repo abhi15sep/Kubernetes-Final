@@ -1,0 +1,155 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: CodePipeline CodeBuild for EKS CICD
+Parameters:
+  ClusterName:
+    Type: String
+    Description: The name of the EKS cluster
+    ConstraintDescription: Enter EKS cluster name
+  GitSourceRepo:
+    Type: String
+    Description: GitHub source repository name
+    ConstraintDescription: Enter GitHub repository name
+  GitHubUser:
+    Type: String
+    Description: GitHub username
+    ConstraintDescription: Enter GitHub username
+  GitHubToken:
+    Type: String
+    NoEcho: true
+    Description: GitHub API token - see https://github.com/blog/1509-personal-api-tokens
+    ConstraintDescription: Enter GitHub personal access token
+  CodeBuildKubectlRoleName:
+    Type: String
+    Default: eks-codebuild-kubectl-role
+    Description: IAM role used by codebuild to run kubectl
+    ConstraintDescription: Enter an IAM role to be used by codebuild to run kubectl
+Resources:
+  EcrRepository:
+    Type: AWS::ECR::Repository
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+  CodePipelineServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: codepipeline-access
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - codebuild:*
+                  - iam:PassRole
+              - Resource: !Sub arn:aws:s3:::${ArtifactBucket}/*
+                Effect: Allow
+                Action:
+                  - s3:*
+    DependsOn: ArtifactBucket
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Resource: !Sub arn:aws:iam::${AWS::AccountId}:role/${CodeBuildKubectlRoleName}
+                Effect: Allow
+                Action:
+                  - sts:AssumeRole
+              - Resource: '*'
+                Effect: Allow
+                Action:
+                  - eks:Describe*
+                  - ecr:GetAuthorizationToken
+                  - logs:*
+              - Resource: !Sub arn:aws:s3:::${ArtifactBucket}/*
+                Effect: Allow
+                Action:
+                  - s3:*
+              - Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${EcrRepository}
+                Effect: Allow
+                Action:
+                  - ecr:*
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Type: LINUX_CONTAINER
+        Image: aws/codebuild/standard:4.0
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - Name: ECR_REPO_URI
+            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${EcrRepository}
+          - Name: GITSOURCE_NAME
+            Value: !Ref GitSourceRepo
+          - Name: CLUSTER_NAME
+            Value: !Ref ClusterName
+          - Name: KUBECTL_ROLE_ARN
+            Value: !Sub arn:aws:iam::${AWS::AccountId}:role/${CodeBuildKubectlRoleName}
+      Name: !Ref AWS::StackName
+      ServiceRole: !GetAtt CodeBuildServiceRole.Arn
+
+  CodePipelineGitHub:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !GetAtt CodePipelineServiceRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: App
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              Configuration:
+                Owner: !Ref GitHubUser
+                Repo: !Ref GitSourceRepo
+                Branch: master
+                OAuthToken: !Ref GitHubToken
+              OutputArtifacts:
+                - Name: App
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+              InputArtifacts:
+                - Name: App
+              OutputArtifacts:
+                - Name: BuildOutput
+              RunOrder: 1
+    DependsOn: CodeBuildProject

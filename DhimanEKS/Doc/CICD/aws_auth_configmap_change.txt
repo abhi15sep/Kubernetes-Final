@@ -1,0 +1,1 @@
+{"rolearn":"<IAM_ROLE_ARN_PLACEHOLDER>","username":"build","groups":["system:masters"]},

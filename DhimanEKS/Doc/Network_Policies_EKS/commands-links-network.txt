@@ -1,0 +1,59 @@
+Commands
+--------
+
+kubectl apply -f https://raw.githubusercontent.com/aws/amazon-vpc-cni-k8s/release-1.5/config/v1.5/calico.yaml
+
+kubectl get daemonset -n kube-system
+
+kubectl run bookstoreapi --image=nginx --labels app=bookstore,role=api --expose --port 80
+
+kubectl get pods --show-labels
+
+kubectl get svc
+
+kubectl run test1 --rm -it --image=alpine -- sh
+
+wget http://bookstoreapi
+
+cat index.html
+
+exit
+
+cd eks
+
+cd network
+
+cat allow.yaml
+
+kubectl apply -f allow.yaml
+
+kubectl run test1 --rm -it --image=alpine -- sh
+
+wget http://bookstoreapi
+
+exit
+
+kubectl run test2 --rm -it --image=alpine --labels app=bookstore,role=frontend -- sh
+
+wget http://bookstoreapi
+
+cat index.html
+
+exit
+
+kubectl run test2 --rm -it --image=alpine --labels app=coffeeshop,role=frontend -- sh
+
+wget http://bookstoreapi
+
+exit
+
+Useful links
+------------
+
+https://kubernetes.io/docs/concepts/services-networking/network-policies/
+
+https://github.com/ahmetb/kubernetes-network-policy-recipes
+
+https://docs.aws.amazon.com/eks/latest/userguide/calico.html
+
+https://github.com/aws/amazon-vpc-cni-k8s

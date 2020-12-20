@@ -1,0 +1,37 @@
+---
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 12
+    commands:
+      - curl -sS -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.16.8/2020-04-16/bin/linux/amd64/aws-iam-authenticator
+      - curl -sS -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.16.8/2020-04-16/bin/linux/amd64/kubectl
+      - chmod +x ./kubectl ./aws-iam-authenticator
+      - export PATH=$PWD/:$PATH
+      - apt-get update && apt-get -y install jq python3-pip python3-dev && pip3 install --upgrade awscli
+      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://0.0.0.0:2375 --storage-driver=overlay&
+      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
+  pre_build:
+      commands:
+        - TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)
+        - sed -i 's@CONTAINER_IMAGE@'"$ECR_REPO_URI:$TAG"'@' web-deploy.yml
+        - $(aws ecr get-login --no-include-email)
+        - export KUBECONFIG=$HOME/.kube/config
+  build:
+    commands:
+      - docker build --tag $ECR_REPO_URI:$TAG .
+
+  post_build:
+    commands:
+      - docker push $ECR_REPO_URI:$TAG
+      - CREDENTIALS=$(aws sts assume-role --role-arn $KUBECTL_ROLE_ARN --role-session-name eks-codebuild-kubectl --duration-seconds 900)
+      - export AWS_ACCESS_KEY_ID="$(echo ${CREDENTIALS} | jq -r '.Credentials.AccessKeyId')"
+      - export AWS_SECRET_ACCESS_KEY="$(echo ${CREDENTIALS} | jq -r '.Credentials.SecretAccessKey')"
+      - export AWS_SESSION_TOKEN="$(echo ${CREDENTIALS} | jq -r '.Credentials.SessionToken')"
+      - export AWS_EXPIRATION=$(echo ${CREDENTIALS} | jq -r '.Credentials.Expiration')
+      - aws eks update-kubeconfig --name $CLUSTER_NAME
+      - kubectl apply -f web-deploy.yml
+      - printf '[{"name":"web-deploy","imageUri":"%s"}]' $ECR_REPO_URI:$TAG > build.json
+artifacts:
+  files: build.json
