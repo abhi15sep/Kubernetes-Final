@@ -1,0 +1,4 @@
+Deleting the CloudFormation stacks related to the EKS cluster
+Please make sure when you are done with the lessons, you delete the CloudFormation stacks deployed in your account for provisioning the EKS cluster -  otherwise you would incur unnecessary AWS charges. Please refer to the following documentation page for details:
+
+https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-console-delete-stack.html
