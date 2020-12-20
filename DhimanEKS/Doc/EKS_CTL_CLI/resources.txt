@@ -1,0 +1,31 @@
+# For Windows users
+https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html#windows
+
+# Pre-requisites - aws, eksctl, kubectl installation process/ url
+https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html
+
+# Install/ Upgrade AWS CLI version 1
+pip3 install —-upgrade awscli
+
+# Upgrade AWS CLI version 2
+https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html#cliv2-linux-upgrade
+
+# install eksctl
+# Please also refer to the above Pre-requisites link above for reference
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+sudo mv /tmp/eksctl /usr/local/bin
+eksctl version
+
+# install kubectl
+# https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html
+curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.17.7/2020-07-08/bin/darwin/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin
+
+# eksctl website
+https://eksctl.io/
+
+#Spot Instances - Reference
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-instances.html
+https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-autoscaling-autoscalinggroup-instancesdistribution.html
+https://docs.aws.amazon.com/autoscaling/ec2/APIReference/API_InstancesDistribution.html
