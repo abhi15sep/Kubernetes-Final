@@ -1,0 +1,5 @@
+gcloud compute firewall-rules create nodeports --allow tcp:30000-40000
+
+gcloud compute instances stop
+
+gcloud compute instances start

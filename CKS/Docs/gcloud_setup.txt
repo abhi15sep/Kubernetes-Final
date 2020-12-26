@@ -1,0 +1,8 @@
+# install gcloud sdk from
+https://cloud.google.com/sdk/auth_success
+
+# then run locally
+gcloud auth login
+gcloud projects list
+gcloud config set project YOUR-PROJECT-ID
+gcloud compute instances list # should be empty right now
