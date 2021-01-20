@@ -1,0 +1,36 @@
+CERTIFICATES:
+
+FOR CA:
+Generate Keys
+openssl genrsa -out ca.key 2048
+ca.key
+
+Certificate Signing Request:
+Openssl req -new -key ca.key -subj “/CN=KUBERNETES-CA” -out ca.csr
+ca.csr
+
+Sign  Certificates : Here for CA its self signed
+Openssl x509 -req -in ca.csr -signkey ca.key -out ca.csr
+
+FOR ADMIN:
+openssl genrsa -out admin.key 2048
+admin.key
+
+Openssl req -new -key admin.key -subj “/CN=Kube-admin” -out admin.csr
+admin.csr
+
+Openssl x509 -req -in admin.csr —CA ca.crt CAKey ca.key -out admin.crt
+
+
+How to view details of the certificate:
+Openssl x509 -in /etc/kubernetes/pki/apiserver.crt -text -noout
+
+journalctl -u etcd.service -l. —> to check logs if installed nativey( not with kubeadm)
+ 
+If Kubernetes logs doesn’t show check docker logs
+Docker ps -a
+Docker logs <container id>
+
+How to check Certificates:
+For Example for kubelet:
+Openssl x509 -in /var/lib/kubelet/worker-1.crt -text

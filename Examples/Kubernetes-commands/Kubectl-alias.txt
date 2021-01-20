@@ -1,0 +1,6 @@
+# Setting Alias will help in getting us more productivity
+
+alias k=kubectl
+​alias kgp=“kubectl get po -o wide”
+
+export do="-o yaml --dry-run=client"

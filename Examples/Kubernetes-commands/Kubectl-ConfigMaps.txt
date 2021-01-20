@@ -1,0 +1,22 @@
+ConfigMaps:
+
+K create configmap <config-name> —from-literal=<key>=<value>
+                                                             —from-file
+
+
+envFrom:
+    - configMapRef:
+              name:
+
+
+env:
+    - name: APP_COLOR
+       valueFrom:
+           configMapKeyRef:
+                name: app-config
+                key:
+
+volumes:
+ - name : app-config-volume
+    configMap:
+         name: app 

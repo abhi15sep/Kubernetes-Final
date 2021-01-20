@@ -1,0 +1,13 @@
+#Node sort based on cpu and memory
+kubectl top node --no-headers --sort-by='cpu' | awk 'NR==1{print $3}'
+or
+kubectl top node --no-headers --sort-by='cpu' | awk '{print $3; exit}'
+
+kubectl top node --no-headers --sort-by='memory' | awk 'NR==1{print $3}'
+or
+kubectl top node --no-headers --sort-by='memory' | awk '{print $3; exit}'
+
+
+#POD sort based on CPU and Memory
+CPU:  kubectl top po -A | sort -nrk 3 | head -1 | awk '{print $2,$3}'
+Memory: kubectl top po -A | sort -nrk 4 | head -1 | awk '{print $2,$4}'

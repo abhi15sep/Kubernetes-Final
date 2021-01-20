@@ -1,0 +1,48 @@
+CLUSTER UPGRADE:
+
+kubeadm upgrade plan
+kubeadm upgrade apply
+
+apt-get upgrade -y kubeadm=<1.12.0-00>
+kubeadm upgrade apply v1.12.0
+
+apt-get upgrade -y kubelet=1.12.0-00
+systemctl restart kubelet
+
+UPDATING WORKERS:
+kubectl drain node-1
+
+apt-get upgrade -y kubeadm=1.12.0-00
+apt-get upgrade -y kubelet=1.12.0-00
+kubeadm upgrade node config —kubelet-version v1.12.0
+systemctl restart kubelet
+
+uncordon node-1
+
+Run the command apt install kubeadm=1.17.0-00 
+and then kubeadm upgrade apply v1.17.0 
+and then apt install kubelet=1.17.0-00 to upgrade the kubelet on the master node
+
+# replace x in 1.17.x-00 with the latest patch version
+apt-mark unhold kubeadm && \
+apt-get update && apt-get install -y kubeadm=1.18.0-00 && \
+apt-mark hold kubeadm
+
+# since apt-get version 1.1 you can also use the following method
+apt-get update && \
+apt-get install -y --allow-change-held-packages kubeadm=1.18.0-00
+
+kubectl drain node01 --ignore-daemonsets
+
+kubectl label nodes master disktype=master
+
+apt-mark unhold kubelet kubectl && \
+apt-get update && apt-get install -y kubelet=1.18.0-00 kubectl=1.18.0-00 && \
+apt-mark hold kubelet kubectl
+
+apt-get update && \
+apt-get install -y --allow-change-held-packages kubelet=1.18.0-00 kubectl=1.18.0-00
+
+apt-mark unhold kubelet kubectl && \
+apt-get update && apt-get install -y kubelet=1.18.0-00 kubectl=1.18.0-00 && \
+apt-mark hold kubelet kubectl

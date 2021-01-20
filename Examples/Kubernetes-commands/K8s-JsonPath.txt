@@ -1,0 +1,44 @@
+JSON PATH: https://kubernetes.io/docs/reference/kubectl/jsonpath/
+
+$ —> root element
+
+K get po -o json
+
+Example:
+K get po -o=jsonpath=‘{.items[0].spec.containers[0].image}’
+
+{“\n”}. New Line
+{“”\t} Tab
+
+K get po -o=jsonpath=‘{.items[*].metadata.name} {“\n”} {.items[*].status.capacity.cpu}’
+
+For each item is range.
+
+‘{range .items[*]}
+        {.metadata.name}{“\t”} {.status.capacity.cpu} {“\n”}
+{end}’
+
+
+#Customer columns:
+K get nodes -o=custom-colums=<COLUMN NAME>: <JSON PATH>
+
+K get nodes -o=custom-colums=NODE: .metadata.name
+Note : we don’t need .items as custom columns think the query is for all the elements in the list
+
+
+
+#More columns can be added by coma.
+K get nodes -o=custom-columns=NODE: .metadata.name,CPU:.status.capacity.cpu
+
+#Sort option
+K get nodes —sort-by= .metada.name
+K get nodes —sort-by= .status.capacity.cpu
+
+kubectl get nodes -o=jsonpath="{.items[*]['status.nodeInfo.osImage']}"
+
+
+kubectl get pv --sort-by=.spec.capacity.storage -o=custom-columns=NAME:.metadata.name,CAPACITY:.spec.capacity.storage
+kubectl get pv --sort-by=.spec.capacity.storage -o=custom-columns=NAME:.metadata.name,CAPACITY:.spec.capacity.storage
+
+K get deploy —sort-by=.metadata.name -o=custom-columns=DEPLOYMENT:.metadata.name,CONTAINER_IMAGE:.spec.template.spec.containers.image, READY_REPLICAS:.status.readyReplicas 
+

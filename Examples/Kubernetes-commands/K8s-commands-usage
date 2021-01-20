@@ -1,0 +1,114 @@
+Kube commands:
+
+# get pods
+kubectl get po  
+
+# Watch for pod changes
+kubectl get po -w
+Ex: kubectl get po | grep chat
+
+# Delete pod
+kubectl delete po <pod name>
+Ex: kubectl delete po vault-56455b8cf-2d8f6
+
+# Describe a pod
+kubectl describe <pod name>
+kubectl describe zookeeper-1-327620013
+
+# get service
+kubectl get svc
+Ex: kubectl get svc | grep chat
+
+# get replica set
+ kubectl get rs
+
+# scale up replicas
+kubectl scale deploy <servicename> --replicas=<replica count>
+ex: kubectl scale deploy push-notification --replicas=1
+
+#Describe Service
+ kubectl describe svc <Service name>
+Ex:  kubectl describe svc chat
+
+# Describe deployment
+ kubectl describe deploy <service name> 
+Ex: kubectl describe deploy chat
+
+# Edit Deployment
+kubectl edit deploy <service name> 
+Ex: kubectl edit deploy chat
+
+# Delete deployment
+kubectl delete deploy <service name> 
+Ex: kubectl delete deploy chat
+
+#Delete just the deployment not the replica set ..etc
+ kubectl delete deploy <deploy name> --cascade=false
+Ex:  kubectl delete deploy vault --cascade=false
+
+# Exec into container in multicontainer pod
+kubectl exec -it <pod> bash -c <container name>
+kubectl exec -it jenkins-build-oscscan-3097bd8ddacb98 bash -c ossc-automation
+
+# get logs for container in multicontainer pod
+kubectl logs <pod> -c <conatainer name>
+kubectl logs jenkins-build-oscscan-3096cb69c4af5b -c ossc-automation
+
+#Apply the new deployment yaml’s
+kubectl apply -f <deployment yaml>
+
+# Get Nodes
+kubectl get no 
+
+#Show labels on Nodes
+kubectl get no --show-labels | grep storage-generic
+
+#Describe a Node
+kubectl describe no ip-10-60-8-80.ec2.internal
+
+kubectl top nodes
+kubectl describe nodes
+
+#Nodes Resource usage:
+kubectl get nodes --no-headers | awk '{print $1}' | xargs -I {} sh -c 'echo {}; kubectl describe node {} | grep Allocated -A 5 | grep -ve Event -ve Allocated -ve percent -ve -- ; echo'
+
+# Scale the replicas for service
+kubectl scale deployment <Service name> --replicas=0
+Ex: kubectl scale deployment operator-deployment --replicas=0
+
+kubectl get node -l type=storage-kafka
+
+#Port forwding for pod
+kubectl port-forward deployments/kuard 8080:8080
+localhost:8080
+
+kubectl get api-resources  —namespaced=true/false
+kubectl proxy —> Creates a proxy to apiserver and can run curl commands directly
+Kubectl config view —> to view the kubeconfig
+kubectl explain pod 
+
+kubectl config view | grep namespace:
+# Set namespace for current context
+kubectl config set-context --current --namespace=
+
+kubectl rollout status deployment.apps/yourAppName -n yourNamespace
+kubectl logs podName -n yourNamespace
+kubectl get events --sort-by=metadata.creationTimestamp
+
+#Examining CPU and memory from within container:
+kubectl exec -it requests-pod top
+
+#Finding a pod with highest CPU load
+k top pod -A | sort -nrk3 | head -1 | awk '{print $2}'
+
+k top pod -A  —sort-by=cpu —no-headers | head -1 | awk ‘{print $1}’
+
+#How to configure Kubectl cluster locally
+https://coreos.com/kubernetes/docs/latest/configure-kubectl.html
+
+#Kube ImagePull secrets
+https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+kubectl create secret docker-registry regsecret --docker-server=<your-registry-server> --docker-username=<your-name> --docker-password=<your-pword> --docker-email=<your-email>
+
+
+

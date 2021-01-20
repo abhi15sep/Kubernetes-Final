@@ -1,0 +1,58 @@
+for the autocomplete
+source <(kubectl completion bash | sed 's/kubectl/k/g')
+
+#see all the parameters very usefull than k8s docs
+kubectl explain pods.spec.containers --recursive | less
+kubectl explain services.spec --recursive | less
+
+#get the pod events
+k describe pod hazelcast | grep -i events -A 10
+
+k api-resources -o wide
+
+#no need to wait for the pod to be deleted 
+kubectl delete po <pod name> <optional -n namespace> --wait=false
+
+kubectl run busybox --image=busybox:1.28 --command sleep 7000 -o yaml --dry-run=client  > busybox.yaml
+
+all about 1.18
+
+export do="--dry-run=client -o yaml"
+k run pod1 --image=nginx $do
+
+k run pod1 --image=busybox -oyaml --dry-run=client
+
+kubectl expose deployment webapp --type=LoadBalancer --name=web-service
+
+#creating a new namespace 
+
+kubectl create ns web
+
+#create a deployment using webfront
+
+k create deploy webfront-deploy --image=nginx:1.7.8  --dry-run -o yaml >webfrontpod.yaml
+
+	kubectl create deployment nginx --image nginx --dry-run=client -o yaml > deploy.yaml  edit deploy.yaml for any replica number changes and apply to create a deployment with 2 replicas.
+	
+    kubectl run nginx --image=nginx --dry-run=client -o yaml > pod.yaml  to create a pod as pod.yaml
+	
+    kubectl expose pod/deployment --name nginx-service --type ClusterIP --port 80 --target-port 80 --dry-run=client -o yaml > svc.yaml to expose a pod or deployment
+		
+    kubectl create secret generic db-secret --from-literal=password=confidential  (no need to encode the secret, its encoded on its own this way)
+	
+    journalctl -u kubelet to get kubelet service logs
+		
+    systemctl status kubelet , systemctl restart kubelet  and systemctl daemon-reload
+		
+    kubeadm init --config=/location/of/kubeadm.config  to create a kubeadm cluster with provided config
+
+    /etc/systemd/system/kubelet.service.d
+
+    journalctl -u kube-controller-manager.service --no-pager | tail -50
+ 
+    journalctl -u kube-scheduler.service --no-pager | tail -50
+
+    k auth can-i watch pods --as=john --namespace=development
+
+    my custom coloums
+    kubectl -n admin2406 get deployment -o custom-columns=DEPLOYMENT:.metadata.name,CONTAINER_IMAGE:.spec.template.spec.containers[].image,READY_REPLICAS:.status.readyReplicas,NAMESPACE:.metadata.namespace --sort-by=.metadata.name > /opt/admin2406_data

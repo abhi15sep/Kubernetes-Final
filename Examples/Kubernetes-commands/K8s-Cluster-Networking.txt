@@ -1,0 +1,16 @@
+CLUSTER NETWORKING
+
+Kube-api server	                6443
+Kubelet (on master + workers)	10250
+Kube-scheduler	                10251
+Kube-controller-manager	        10252
+Etcd	                        2379
+Worker node ports for services	30000-32767
+	
+
+IPAM — IP address Management
+
+iptables -L -t net | grep <service>
+
+What network range are the nodes in the cluster part of?
+ip addr —> check ens3

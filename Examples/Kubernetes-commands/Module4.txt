@@ -1,0 +1,12 @@
+master $ k create serviceaccount pvviewer
+serviceaccount/pvviewer created
+master $ kubectl create role pvviewer-role --verb=list --resource=pvrole.rbac.authorization.k8s.io/pvviewer-role created
+master $ kubectl create rolebinding pvviewer-role-binding --clusterrole=pvviewer-role --user=pvviewer
+rolebinding.rbac.authorization.k8s.io/pvviewer-role-binding created
+master $ k run pvviewer --image=redis --serv
+--server           --serviceaccount
+--server=          --serviceaccount=master $ k run pvviewer --image=redis --serv
+--server           --serviceaccount
+--server=          --serviceaccount=
+master $ k run pvviewer --image=redis --serviceaccount=pvviewer
+pod/pvviewer created
