@@ -1,0 +1,2 @@
+1. https://learnk8s.io/production-best-practices
+2. https://kmitevski.com/velero-kubernetes-backup-and-dr-solution/
