@@ -1,0 +1,22 @@
+
+repositories:
+- name: stable
+  url: https://kubernetes-charts.storage.googleapis.com
+
+helmDefaults:
+  tillerless: true
+  verify: false
+  wait: true
+  timeout: 200
+  force: true
+environments:
+  default:
+  staging:
+
+releases:
+- name: jenkins
+  chart: stable/jenkins
+  version: 2.1.0
+  namespace: cicd
+  values:
+  - "./values.yaml"

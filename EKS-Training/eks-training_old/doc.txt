@@ -1,0 +1,56 @@
+Due to the frequency of upgrades of [ Kubernetes, EKS, Terraform & other used tools ], TAGed the source code in order to  let you follow along without pains :
+
+- EKS 1.14: git clone -b v.1.0-k1.14-tf-7.0.0 https://github.com/abdennour/eks-training
+
+- EKS 1.15 :  git clone -b v.2.0-k1.15-tf-10.0.0 https://github.com/abdennour/eks-training
+
+- EKS 1.16 :  git clone -b v.3.0-k1.16-tf-12.0.0 https://github.com/abdennour/eks-training
+
+
+Without specifying the tag,  you will download the latest version (master).
+
+_____________________________
+
+
+Useful Links
+
+1. Install Docker
+
+- Install Docker on MacOs or Windows:  https://docs.docker.com/install/linux/docker-ce/ubuntu/
+
+- Install Docker on Linux
+
+         ubuntu:  https://docs.docker.com/install/linux/docker-ce/ubuntu/
+
+         centos: https://docs.docker.com/install/linux/docker-ce/centos/
+
+          fedora: https://docs.docker.com/install/linux/docker-ce/fedora/
+
+Alternatively, If you are familiar with Ansible, you could install docker using this role: https://galaxy.ansible.com/geerlingguy/docker
+
+
+2. Install Editor & some extensions
+
+- install VSCode : https://code.visualstudio.com/download
+
+- Install Extensions:
+
+    Docker Extension https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker
+
+    Kubernetes Extension https://marketplace.visualstudio.com/items?itemName=ms-kubernetes-tools.vscode-kubernetes-tools
+
+    Terraform Extension https://marketplace.visualstudio.com/items?itemName=mauve.terraform
+
+=================================================
+    # Docker is installed.
+    git clone https://github.com/abdennour/eks-training && cd eks-training
+    # IAM user must be ready with programmatic access
+    unset EKS_AWS_PROFILE && docker-compose run --rm aws configure --profile terraform-operator
+    # Deploy the cluster
+    docker-compose run --rm terraform apply -auto-approve
+
+    Destroying the EKS Cluster :
+    docker-compose run --rm terraform destroy -auto-approve
+
+    Resume:
+    docker-compose run --rm terraform apply -auto-approve

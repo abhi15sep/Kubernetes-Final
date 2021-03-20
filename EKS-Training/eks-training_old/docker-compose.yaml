@@ -1,0 +1,72 @@
+version: '3.7'
+
+
+services:
+  aws:
+    image: abdennour/aws
+    volumes:
+      - .:/code
+      - aws-creds:/root/.aws
+    restart: "no"
+    working_dir: /code
+    environment:
+      AWS_PROFILE: ${EKS_AWS_PROFILE}
+
+  terraform:
+ # hashicorp/terraform:0.12.12 # abdennour/terraform:0.12.12-aws-iam-authenticator
+    image: abdennour/terraform:0.12.12-aws-iam-authenticator
+    volumes:
+      - .:/code
+      - aws-creds:/root/.aws
+    working_dir: /code
+    environment:
+      AWS_PROFILE: ${EKS_AWS_PROFILE}
+
+  kubectl:
+    image: abdennour/kubectl:v1.16.2-aws1.16.281
+    restart: "no"
+    working_dir: /code
+    volumes:
+      - .:/code
+      - aws-creds:/root/.aws:ro
+    entrypoint: kubectl
+    # entrypoint: /bin/sh
+    environment:
+      AWS_PROFILE: ${EKS_AWS_PROFILE}
+      KUBECONFIG: /code/kubeconfig_awesome
+    ports:
+    # machine : container
+    - 8090:8090
+  helm:
+    image: abdennour/helm:3.1.2-aws1.18.21-kubectlv1.17.4
+    restart: "no"
+    working_dir: /code
+    volumes:
+    - .:/code
+    - helm-config:/root/.config/helm
+    - helm-cache:/root/.cache/helm
+    - aws-creds:/root/.aws:ro
+    environment:
+      KUBECONFIG: /code/kubeconfig_awesome
+      AWS_PROFILE: ${EKS_AWS_PROFILE}
+
+  helmfile:
+    image: abdennour/helmfile:v0.102.0-aws-1.18.21
+    restart: "no"
+    working_dir: /code
+    volumes:
+    - .:/code
+    - helm-config:/root/.config/helm
+    - helm-cache:/root/.cache/helm
+    - aws-creds:/root/.aws:ro
+    env_file:
+    - .env.secrets
+    environment:
+      KUBECONFIG: /code/kubeconfig_awesome
+      AWS_PROFILE: ${EKS_AWS_PROFILE}
+
+volumes:
+  aws-creds:
+    name: aws-creds
+  helm-config:
+  helm-cache:
