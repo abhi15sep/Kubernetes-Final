@@ -1,0 +1,12 @@
+asdf: qwerty
+
+asdfcomplex:
+  qwert: asdfg
+
+lotsOfValues:
+  - uno
+  - dos
+  - tres
+
+global:
+  genericPass: admin1234

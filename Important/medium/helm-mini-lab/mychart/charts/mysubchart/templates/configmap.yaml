@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ .Release.Name }}-configmap-child"
+data:
+  updatedValue: "{{ .Values.updatedValue }}-subchart-idgafos"
+  genericPass: {{ .Values.global.genericPass }}
