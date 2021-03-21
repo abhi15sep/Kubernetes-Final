@@ -1,0 +1,37 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "sin censura",
+            "intents": [
+                {
+                    "name": "AMAZON.PauseIntent",
+                    "samples": []
+                },
+                {
+                    "name": "TellmeAJokeIntent",
+                    "slots": [],
+                    "samples": [
+                        "un chiste"
+                    ]
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ResumeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                }
+            ],
+            "types": []
+        }
+    }
+}

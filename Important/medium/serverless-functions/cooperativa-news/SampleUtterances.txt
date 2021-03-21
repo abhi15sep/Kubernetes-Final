@@ -1,0 +1,2 @@
+ChileNewsIntent tell me the news
+ChileNewsIntent the news

@@ -1,0 +1,13 @@
+{
+    "dev": {
+        "app_function": "jokebox.app",
+        "aws_region": "us-east-1",
+        "profile_name": "default",
+        "project_name": "jokebox",
+        "runtime": "python2.7",
+        "s3_bucket": "zappa-jokebox-upl",
+        "environment_variables": {
+          "audio_bucket": "jokebox-db"
+        }
+    }
+}

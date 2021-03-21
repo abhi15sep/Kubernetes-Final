@@ -1,0 +1,12 @@
+---
+container:
+  image: "containous/whoami"
+  tag: "latest"
+  port: 80
+  replicas: 1
+
+ingress:
+  host: minikube.local
+  path: /
+  serviceName: sample-app
+  servicePort: 80

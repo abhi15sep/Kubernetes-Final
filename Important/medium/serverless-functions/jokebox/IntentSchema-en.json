@@ -1,0 +1,37 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "jokebox",
+            "intents": [
+                {
+                    "name": "AMAZON.PauseIntent",
+                    "samples": []
+                },
+                {
+                    "name": "TellmeAJokeIntent",
+                    "slots": [],
+                    "samples": [
+                        "a joke"
+                    ]
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ResumeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                }
+            ],
+            "types": []
+        }
+    }
+}

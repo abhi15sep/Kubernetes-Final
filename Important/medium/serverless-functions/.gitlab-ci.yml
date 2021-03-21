@@ -1,0 +1,29 @@
+image: python:2.7.14
+
+before_script:
+  - pip install awscli virtualenv
+  - aws configure set aws_access_key_id $ACCESS_KEY_ID
+  - aws configure set aws_secret_access_key $ACCESS_SECRET_KEY
+
+stages:
+  - deploy
+
+jokebox-dev:
+  stage: deploy
+  script:
+    - virtualenv jokebox/
+    - cd jokebox/
+    - source bin/activate
+    - pip install -U pip==9.0.1
+    - pip install -r requirements.txt
+    - zappa update dev
+
+cooperativa-news-dev:
+  stage: deploy
+  script:
+    - virtualenv cooperativa-news/
+    - cd cooperativa-news/
+    - source bin/activate
+    - pip install -U pip==9.0.1
+    - pip install -r requirements.txt
+    - zappa update dev

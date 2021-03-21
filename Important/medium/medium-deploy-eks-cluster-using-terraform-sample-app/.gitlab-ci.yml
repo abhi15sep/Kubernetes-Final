@@ -1,0 +1,82 @@
+---
+###############################################################
+# Requirements:                                               #
+#   define the following gitlab CI secrets:                   #
+#     AWS_DEFAULT_REGION                                      #
+#     AWS_ACCESS_KEY_ID                                       #
+#     AWS_SECRET_ACCESS_KEY                                   #
+#     KUBERNETES_CLUSTER                                      #
+#   and any other secrets to be used in HELM_ADDITIONAL_OPTS  #
+###############################################################
+
+stages:
+  - code-quality
+  - pre-deploy
+  - deploy
+
+markdown_lint:
+  stage: code-quality
+  tags:
+    - linux
+  image: pipelinecomponents/markdownlint:6ff4ccf
+  script:
+    - mdl --style all --warnings .
+
+yaml_lint:
+  stage: code-quality
+  tags:
+    - linux
+  image:
+    name: cytopia/yamllint:1.20
+    entrypoint:
+      - env
+  script:
+    - yamllint .gitlab-ci.yml
+
+helm_lint:
+  stage: code-quality
+  image:
+    name: lachlanevenson/k8s-helm:v3.2.4
+    entrypoint: [""]
+  script:
+    - helm lint helm/
+
+pre_deploy_development:
+  stage: pre-deploy
+  image: devth/helm:v3.2.4
+  environment:
+    name: development
+  variables:
+    APP_NAME: "sample-app"
+    KUBERNETES_NAMESPACE: "sample-apps"
+  before_script:
+    - apk add py-pip --update
+    - pip install awscli
+    - aws eks --region ${AWS_DEFAULT_REGION} update-kubeconfig
+      --name ${KUBERNETES_CLUSTER}
+  script:
+    - helm upgrade --install ${APP_NAME} --namespace ${KUBERNETES_NAMESPACE}
+      helm/ --values helm/config/values-${CI_ENVIRONMENT_NAME}.yaml --dry-run
+
+deploy_development:
+  stage: deploy
+  image: devth/helm:v3.2.4
+  environment:
+    name: development
+  when: manual
+  variables:
+    APP_NAME: "sample-app"
+    KUBERNETES_NAMESPACE: "sample-apps"
+  before_script:
+    - apk add py-pip --update
+    - pip install awscli
+    - aws eks --region ${AWS_DEFAULT_REGION} update-kubeconfig
+      --name ${KUBERNETES_CLUSTER}
+  script:
+    - |
+      if [ ${REMOVE} ]
+      then
+        helm uninstall ${APP_NAME} --namespace ${KUBERNETES_NAMESPACE}
+      fi
+    - helm upgrade --install ${APP_NAME} --namespace ${KUBERNETES_NAMESPACE}
+      helm/ --values helm/config/values-${CI_ENVIRONMENT_NAME}.yaml

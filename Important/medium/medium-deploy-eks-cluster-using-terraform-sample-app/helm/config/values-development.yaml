@@ -1,0 +1,7 @@
+---
+container:
+  replicas: 4
+  tag: "v1.5.0"
+
+ingress:
+  host: sample.eks.singh.cl

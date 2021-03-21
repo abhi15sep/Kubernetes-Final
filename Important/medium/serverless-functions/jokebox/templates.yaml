@@ -1,0 +1,7 @@
+welcome_message_en: |
+  <speak>
+    <voice name="Justin">
+      Are you ready for a Joke <prosody rate="fast">my <phoneme alphabet="ipa" ph="ˈnɪɡə(r)">man</phoneme></prosody>?
+    </voice>
+  </speak>
+welcome_message_es: ¿te cuento un chiste?

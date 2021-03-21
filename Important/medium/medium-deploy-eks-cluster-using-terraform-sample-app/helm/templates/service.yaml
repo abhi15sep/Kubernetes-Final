@@ -1,0 +1,10 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Chart.Name }}
+spec:
+  selector:
+    app: {{ .Chart.Name }}
+  ports:
+    - port: {{ .Values.container.port }}

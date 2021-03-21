@@ -1,0 +1,36 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "chile news",
+            "intents": [
+                {
+                    "name": "AMAZON.PauseIntent",
+                    "samples": []
+                },
+                {
+                    "name": "ChileNewsIntent",
+                    "samples": [
+                        "the news"
+                    ]
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ResumeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                }
+            ],
+            "types": []
+        }
+    }
+}

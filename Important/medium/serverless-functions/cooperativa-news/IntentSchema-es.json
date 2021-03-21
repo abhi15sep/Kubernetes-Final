@@ -1,0 +1,36 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "las noticias de cooperativa",
+            "intents": [
+                {
+                    "name": "AMAZON.PauseIntent",
+                    "samples": []
+                },
+                {
+                    "name": "ChileNewsIntent",
+                    "samples": [
+                        "las noticias"
+                    ]
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ResumeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                }
+            ],
+            "types": []
+        }
+    }
+}
