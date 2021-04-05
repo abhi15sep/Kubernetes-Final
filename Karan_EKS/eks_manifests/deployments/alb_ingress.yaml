@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+   name: alb-ingress
+   namespace: dev
+   annotations:
+     kubernetes.io/ingress.class: alb
+     alb.ingress.kubernetes.io/scheme: internet-facing
+     alb.ingress.kubernetes.io/security-groups: sg-01e6e7c6909f00935
+     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:<YOUR_AWS_ACCOUNT>:certificate/701693b7-73b0-43c5-aed3-23f94b4265aa
+     external-dns.alpha.kubernetes.io/hostname: alb.cloudevangelist.ca
+spec:
+  rules:
+  - host: alb.cloudevangelist.ca
+    http:
+      paths:
+      - backend:
+          serviceName: service2
+          servicePort: 80
+        

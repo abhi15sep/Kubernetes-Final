@@ -1,0 +1,17 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: eks-demo
+  region: us-east-1
+fargateProfiles:
+  - name: fp-all
+    selectors:
+      # Entire workload in dev namespace will run on Fargate
+      - namespace: dev
+      
+  - name: fp-labels
+    selectors:
+      # Workload matching selected labels run on "dev1" namespace
+      - namespace: dev1
+        labels:
+          env: dev

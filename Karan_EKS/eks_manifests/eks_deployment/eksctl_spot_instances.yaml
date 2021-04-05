@@ -1,0 +1,39 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: eks-demo 
+  region: us-east-1
+  
+nodeGroups:
+  - name: spot-ng
+    labels:
+      lifecycle: Ec2Spot
+    taints:
+      spotInstance: true:PreferNoSchedule
+    privateNetworking: true
+    ssh:
+      allow: true
+      publicKeyPath: ~/.ssh/id_rsa.pub
+    volumeSize: 5
+    minSize: 1
+    maxSize: 1
+    desiredCapacity: 1
+    instancesDistribution: 
+      instanceTypes:
+        - t3.large
+        - t3.medium
+        - t3.small
+        - t3a.medium
+        - t3a.large
+        - t3a.small
+      onDemandBaseCapacity: 0
+      onDemandPercentageAboveBaseCapacity: 0 
+      spotAllocationStrategy: capacity-optimized
+    iam:
+      withAddonPolicies:
+        externalDNS: true
+        autoScaler: true
+        ebs: true
+        efs: true
+        cloudWatch: true
+        albIngress: true

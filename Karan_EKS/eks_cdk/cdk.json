@@ -1,0 +1,7 @@
+{
+    "app": "python app.py",
+    "context":{
+        "project_name": "eks",
+        "env": "dev"
+    }
+}

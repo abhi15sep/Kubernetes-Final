@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+   name: nginx-ingress
+   namespace: dev
+   annotations:
+     kubernetes.io/ingress.class: nginx
+     external-dns.alpha.kubernetes.io/hostname: nginx1.cloudevangelist.ca
+spec:
+  rules:
+  - host: nginx1.cloudevangelist.ca
+    http:
+      paths:
+      - backend:
+          serviceName: service1
+          servicePort: 80
+        

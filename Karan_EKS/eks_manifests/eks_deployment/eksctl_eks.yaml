@@ -1,0 +1,41 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: eks-demo
+  region: us-east-1
+  version: "1.16"
+vpc:
+  id: "vpc-088bef105fd6ce9aa"
+  cidr: "172.32.0.0/16"
+  subnets:
+    private:
+      us-east-1a:
+          id: "subnet-0a3087247307c1f7a"
+          cidr: "172.32.2.0/24"
+      us-east-1b:
+          id: "subnet-0234d1756673d66da"
+          cidr: "172.32.3.0/24"
+
+managedNodeGroups:
+  - name: eks-ng
+    minSize: 2
+    maxSize: 2
+    desiredCapacity: 2
+    instanceType: t3.small
+    volumeSize: 5
+    privateNetworking: true
+    ssh:
+      allow: true
+      publicKeyPath: ~/.ssh/id_rsa.pub
+      #sourceSecurityGroupIds: ["sg-0e10bb986d85449b8"]
+    labels: {env: dev}
+    tags:
+      costid: devops
+    iam:
+      withAddonPolicies:
+        externalDNS: true
+        autoScaler: true
+        ebs: true
+        efs: true
+        cloudWatch: true
+        albIngress: true

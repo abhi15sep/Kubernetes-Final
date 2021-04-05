@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+   name: grafana
+   namespace: grafana
+   annotations:
+     kubernetes.io/ingress.class: nginx
+     external-dns.alpha.kubernetes.io/hostname: grafana.cloudevangelist.ca
+spec:
+  rules:
+  - host: grafana.cloudevangelist.ca
+    http:
+      paths:
+      - backend:
+          serviceName: grafana
+          servicePort: 80
