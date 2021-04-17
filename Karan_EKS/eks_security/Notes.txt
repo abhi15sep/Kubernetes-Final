@@ -56,8 +56,16 @@
     > In eks.yaml, under secretsEncryption section add arn.
     > Make sure to create a key during cluster creation, else later it can't be changed.
 
-13. Pod Security Policy:
- 
+13. Pod Security Policy: It defines a set of conditions that a pod must run with in order to be accepted in a system or in order to be scheduled in any of the node.In eks we have one default PSP and its cluster wide resource.
+    > kubectl get PSP
+    > EKS default policy doesn't apply any restriction in pod. Whenever we run a pod its validated against PSP.
+    > kubectl describe psp eks.privileged
+    > kubectl delete psp eks.privileged
+    > kubectl apply -f psp/psp_default.yaml
+    > kubectl apply -f psp/psp_restricted.yaml
+    > kube get psp
+
+
 
 
 
