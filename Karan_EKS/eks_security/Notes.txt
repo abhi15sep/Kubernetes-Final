@@ -1,0 +1,26 @@
+1. eksctl create cluster -f eks.yaml
+
+2. ekstl scale nodegroup --cluster=eks-demo --name=eks-ng --nodes=2 --nodes-min=2 --nodes-max=2 --region us-east-1
+
+3. create identity provider:
+> eksctl utils asociate-iam-oidc-provider --name eks-demo --region us-east-1 --approve
+
+4. create a serviceaccount: create iam role and serviceaccount and map it together.
+> eksctl create iamserviceaccount --name sa-poc --cluster eks-demo --attach-policy-arn <aws policy arn> --approve --region us-east-1 --namespace dev
+
+5. check serviceaccount created:
+> kubectl get sa
+
+7. assign eks access to new user:
+   a) create a new aws iam user.
+   b) Run aws configure --profile eksdev
+   c) Generate kubeconfig for eks cluster:
+       > aws eks update-kubeconfig --name eks-demo --role-arn <role-attached with workspace during cluster creation because its there in RBAC> --profile eksdev
+   d) Establish trust between user created on laptop and above mentioned role.
+
+8. To get EKS endpoint
+> aws eks describe-cluster --name eks-demo --region us-east-1
+> Setup bastian and localport forwarding to access cluster and make api-endpoint as "private" in eks cluster. Also don't forget to configure api endpont in /etc/host file.
+> Also in cluster "Additional security group" allow all traffic from jumpbox security group.
+
+9. 
