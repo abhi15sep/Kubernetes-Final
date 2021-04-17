@@ -65,8 +65,20 @@
     > kubectl apply -f psp/psp_restricted.yaml
     > kube get psp
 
-
-
-
+14. ECR using VPC private endpoints:
+    > To get public Ip address of ecr endpoint: ping api.ecr.us-east-1.amazonaws.com
+    > Steps to create VPC endpoint:
+      a) Go to VPC endpoint and select your VPC. You will see 2 options: api & dkr endpoints.
+      b) aws ecr describe-repositories --region us-east-1 : api interface is used.
+      c) docker command is used to build and push image, here drk interface is used. When endpoint is created it will use VPC private link or VPC private channel to push image to ECR repository. 
+      d) Create api endpoint: select VPC and private subnet and enable dns name.Create security Group and allow all traffic. Customize your endpoint policy as per requirement.
+      e) RUN: ping api.ecr.us-east-1.amazonaws.com - Ip is changed to private Ip and it belongs to subnet.
+      f) Create dkr endpoint: select VPC and private subnet and enable dns name.Create security Group and allow all traffic.Customize your endpoint policy as per requirement. Here your private dns name is *.dkr.ecr.us-east-1.amazonaws.com, * will be replaced with accountNumber.
+      g) Create S3 endpoint: Select VPC and routetable associated with private-subnet.Customize your endpoint policy as per requirement. It is required because ECR uses S3 to store docker image layers. When you instances download docker image from ECR, They msut access ECR to access image manifest and S3 to download actual image layers.
+      h) login to ECR: aws ecr get-login-password --regon us-east-1 | docker login --username AWS --password-stdin <account-number>.dkr.ecr.us-east-1.amazonaws.com
+      i) build: docker build -t dev/awscli .
+      j) Tag: docker tag dev/awscli:latest <account-number>.dkr.ecr.us-east-1.amazonaws.com/dev/awscli:latest
+      k) List Image: docker images
+      l) PUSH: docker push <account-number>.dkr.ecr.us-east-1.amazonaws.com/dev/awscli:latest
 
 
