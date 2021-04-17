@@ -49,3 +49,5 @@ nodeGroups:
         efs: true
         cloudWatch: true
         albIngress: true
+secretsEncryption:
+  keyArn: <kms customer managed key arn>

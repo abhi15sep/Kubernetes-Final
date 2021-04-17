@@ -23,4 +23,42 @@
 > Setup bastian and localport forwarding to access cluster and make api-endpoint as "private" in eks cluster. Also don't forget to configure api endpont in /etc/host file.
 > Also in cluster "Additional security group" allow all traffic from jumpbox security group.
 
-9. 
+9. To install calico, first need delete nodegroup and then delete aws-node pod. Then install calico plugin and add nodegroup again.
+> eksctl delete nodegroup --cluster eks-demo --name eks-ng --region us-east-1
+> kubectl get ds -n kube-system (deamonset with aws-node, delete it)
+> kubectl delete ds aws-node -n kube-system
+> kubectl apply -f calico_cni.yaml    (Install calico plugin)
+> kubectl get ds -n kube-system (you will see calico-cni deamonset)
+> eksctl create nodegroup --cluster eks-demo --name eks-ng --node-type t3.small --nodes 1 --node-ami auto --max-pods-per-node 100 --node-private-networking --region us-east-1 (--max-pods-per-node using this oprion is important else pods will be created using subenet, vpc ip address range, not internal ips. Also using calico will create unmanaged nodegroup)
+
+10.Install calicocli:
+> curl -O -L  https://github.com/projectcalico/calicoctl/releases/download/v3.18.1/calicoctl
+> chmod +x calicoctl
+> sudo mv calicoctl /usr/local/bin
+
+11. Configure calicoctl to connect to the Kubernetes API datastore
+> export DATASTORE_TYPE=kubernetes
+> export KUBECONFIG=~/.kube/config
+> calicoctl version
+> calicoctl get nodes --output wide (list nodes)
+> calicoctl ipam show  (show internal IP access management)
+> calicoctl apply -f pool2.yaml (create new ip pool )
+> calicoctl get ippool -o wide (you will see 2 ippool, so lets disable default ippool)
+> calicoctl get ippool -o yaml > pool.yaml  (disable default pool using disabled: true config in pool.yaml)
+> calicoctl apply -f pool.yaml
+> calicoctl get ippool -o wide (you will see default ippool is disabled)
+> calicocli delete pool default-ipv4-ippool (delete default ippool)
+
+12. AWS KMS keys to encrypt secrets: Whenever you create a secret that info is stored in etcd datastore. Those secrets are encrypted by AWS managed encryption keys and we don't have ay access on those keys.
+    EKS allows us to encrypt data which is already encrypted by AWS managed keys, using our own keys.Thats why its called envelpe encryption because we are providing encryption on top of already encrypted secret.
+    > create a customer managed key in KMS
+    > Copy key arn
+    > In eks.yaml, under secretsEncryption section add arn.
+    > Make sure to create a key during cluster creation, else later it can't be changed.
+
+13. Pod Security Policy:
+ 
+
+
+
+
