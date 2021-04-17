@@ -81,4 +81,9 @@
       k) List Image: docker images
       l) PUSH: docker push <account-number>.dkr.ecr.us-east-1.amazonaws.com/dev/awscli:latest
 
-
+15. CIS Benchmark:
+> kube-bench tool is provided by aqua-security. It runs through cluster configuration and it has all CIS rules configured in image.
+> kubectl apply -f kube_bench.yaml
+> kubectl get jobs -w
+> kubectl get po
+> kubectl logs -f <name of pod>
