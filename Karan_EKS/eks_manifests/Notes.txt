@@ -1,0 +1,71 @@
+Create IAM User with View Permission in k8s:
+=============================================
+1. kubectl aply -f configure_eks/user_binding.yaml
+
+3. eksctl create iamidentitymapping --cluster eks-demo --region us-east-1 --arn <iam user arn> --username <k8s username>  (create user with view permission)
+
+3. eksctl get iamidentitymapping --cluster eks-demo --region us-east-1  (see user mapping in aws_auth config)
+
+4. Test: 
+    > aws configure --profile eksdev
+    > aws eks update-kubeconfig --name eks-demo --profile eksdev   (generate kubeconfig)
+    > kubectl get svc
+
+Map IAM Role to RBAC:
+====================
+1. Go to IAM and create a new role without any permission.
+2. Need to create a Trust relationship between IAM user and role. Copy user arn and go to role "trust relationship" and add the arn.
+3. Go to user inline policy and select STS Assume Role with all resources.
+4. eksctl create iamidentitymapping --cluster eks-demo --region us-east-1 --arn <IAM role arn> --username system:serviceaccount:kube-system:dev --group system:serviceaccount:kube-system   (mapping IAM role with k8s serviceaccount)
+5. kubectl get cm aws-auth -n kube-system -o yaml
+6. Generate kubeconfig: aws eks update-kubeconfig --name eks-demo --role-arn <iam role arn> --profile eksdev
+7. Apply role binding: kubectl aply -f configure_eks/role_binding.yaml
+
+
+Kube2iam:
+==========
+1. kubectl aply -f configure_eks/kube2iam.yaml
+2. kubectl get pods -n utilities
+3. kubectl create ns dev
+4. Create a new IAM role and attach S3 policy.
+5. Add inline policy to attached node profile. Assume STS for all resources. Need to create a trust between new role and role attached to node.
+6. kubectl apply -f deployment/nginx.yaml
+7. kubectl get pods dev
+8. Edit namespace and add annotation, iam.amazonaws.com/allowed-roles: [role-arn]
+9. In deployment add annotation iam.amazonaws.com/role : <role arn defined in namespace>
+10. kubectl apply -f deployment/nginx.yaml
+
+ALB Ingress :
+============
+1. Goto tags in private-subnet:
+   > kubernetes.io/cluster/eks-demo: shared  (It can be owned as well, means this subnet can be used by only this cluster )
+   > kubernetes.io/role/internal-elb: 1 
+
+2. We need to create  kubernetes.io/role/elb and kubernetes.io/cluster/eks-demo tag in public subnet.
+   > kubernetes.io/role/elb: 1
+   > kubernetes.io/cluster/eks-demo: shared
+
+3. Create IAM role for ALB ingress controller and add inline policy(alb_ingress_role_policy.json). Then need to build trust relationship between this role and node roles.
+4. Copy node role arn and add it in trust relationship in alb role.
+5. Edit kube-syatem namespace and add annotation iam.amazonaws.com/allowed-roles: [alb-role-arn]
+6. Add annotation in alb-ingress-controller.yaml, iam.amazonaws.com/role : <arn of alb role>
+7. kubectl apply -f Ingress/rbac-role.yaml
+8. kubectl apply -f Ingress/alb-ingress-controller.yaml
+9. kubectl get po -n kube-system
+
+
+Update EKS Cluster:
+===================
+1. Update eksctl
+2. Update Control Plane:
+   > eksctl upgrade cluster --name=eks-demo --version=1.17 --region us-west-1 --approve
+3. Update defaut addons: kubeproxy, coredns, CNI, cluster-autoscaler. Follow AWS docs.
+   > eksctl utils update-kube-proxy --cluter=eks-demo --region=us-east-1 --approve
+   > kubectl scale deployment/cluster-autoscaler --replicas=0 -n kube-system
+   > Now need to create a new nodegroup and delete previous one.
+4. Add new nodegroup:
+   > eksctl create nodegroup -f eks_deployment/eksctl_upgrade_ng.yaml
+   > kubectl get nodes
+   > eksctl delete nodegroup --cluster=eks-demo --name=eks-ng --region=us-east-1
+5. Update cluster-autoscaler to 1.17
+   > kubectl scale deployment/cluster-autoscaler --replicas=1 -n kube-system
